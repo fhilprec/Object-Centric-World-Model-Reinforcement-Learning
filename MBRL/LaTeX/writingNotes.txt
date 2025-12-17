@@ -1,3 +1,5 @@
 Questions: 
 Picture still
 Ablation Study for feature weighting -> no i dont have something should I add another experiment for that?
+Why dreamer doesnt have to craft reward -> I do not know intially I didnt want to do that but that was the only way it worked, much more testing would be needed there
+why does 15 steps work for dreamer

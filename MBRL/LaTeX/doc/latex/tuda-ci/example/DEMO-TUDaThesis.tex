@@ -490,6 +490,13 @@ train on. The complete implementation including all training scripts and
 evaluation tools is publicly available \cite{ocwmrl2025}. 
 \section{\worldmodel{} Architecture} \label{sec:world_model_arch}
 
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.9\textwidth]{images/PongArchitecture.png}
+	\caption{Overview of the Pong \worldmodel{} architecture. The model takes in the current object-centric state and action, processes them through a deep residual MLP, and predicts the next object-centric state.}
+	\label{fig:pong_architecture}
+\end{figure}
+
 Unlike DreamerV2 which learns on images we leverage the fact that we already
 have object centric states. So instead of a 84x84 Pixel image as input we have
 a 12 object states. Which have the following features: Each object-centric
@@ -631,9 +638,9 @@ the sample efficiency benefits of model based RL.
 \end{align}
 
 The distributional critic provides the uncertainty estimates and has been shown
-to improve the learning stability in actor-critic methods. During training, we
-minimize the negative log-likelihood of the target returns under this
-distribution.
+to improve the learning stability in actor-critic methods \cite{yue2020implicit}.
+During training, we minimize the negative log-likelihood of the target returns
+under this distribution.
 
 \subsection{Policy Learning in Imagined Rollouts}
 \label{subsec:imagined_rollouts}
@@ -693,11 +700,10 @@ these predicted returns using the REINFORCE gradient estimator.
 
 A key implementation detail is the batching strategy. We flatten all
 trajectories into a single dataset of $(s_t, a_t, V^\lambda_t)$ tuples totaling
-$N \times H = 210,000$ samples, then we perform mini-batch SGD with batch size
-256. This approach improves the hardware utilization and gradient stability
+$N \times H = 210,000$ samples, then we perform mini-batch SGD with batch size. This approach improves the hardware utilization and gradient stability
 compared to the per-trajectory updates.
 
-represents our parameterized dynamics function represented by\subsection{Lambda-Return Computation}
+\subsection{Lambda-Return Computation}
 \label{subsec:lambda_returns}
 
 The lambda-return $V^\lambda_t$ provides a bias-variance trade-off between the
@@ -715,7 +721,7 @@ with the base case $V^\lambda_H = v_\xi(s_H)$ at the horizon. We set $\lambda =
 bootstrapped value estimates while maintaining some Monte Carlo influence.
 
 The computation is implemented via a JAX scan operation that processes the
-trajectories backwards in time:
+trajectories backwards in time. These lambda-returns serve as regression targets for the critic.
 
 \begin{algorithm}
 	\caption{Lambda-Return Computation (Backward Pass)}
@@ -729,8 +735,6 @@ trajectories backwards in time:
 		\STATE \textbf{return} $\{V^\lambda_t\}_{t=0}^{H-1}$
 	\end{algorithmic}
 \end{algorithm}
-
-These lambda-returns serve as regression targets for the critic:
 
 \begin{equation}
 	\mathcal{L}_{\text{critic}} = \mathbb{E}_{s \sim \text{rollouts}}\left[-\log p_{v_\xi}(V^\lambda | s)\right]
@@ -806,10 +810,10 @@ defined heuristic policy, followed by alternating phases of \worldmodel{}
 training and policy optimization. This policy moves the paddle toward the
 ball's y-coordinate with 50\% random exploration, which provides reasonable
 coverage of reachable states without requiring a pre-trained agent. The
-ball-tracking policy achieves pretty loward reward but sometimes scores a ball
+ball-tracking policy achieves pretty low reward but sometimes scores a ball
 which is sufficient for learning proper environment dynamics.
 
-The collected experience is stored as tuples $(s_t, a_t, s_{t+1})$ with
+The collected experience is stored as tuples $(s_tTraining uses the Adam optimizer with, a_t, s_{t+1})$ with
 metadata marking the episode and life boundaries (ball resets). These
 boundaries help in training the \worldmodel{} to avoid learning spurious
 transitions across them.
@@ -819,10 +823,6 @@ transitions across them.
 \begin{equation}
 	\mathcal{L}_{\text{world}} = \mathbb{E}_{(s,a,s') \sim \mathcal{D}}\left[\sum_{i=1}^{48} w_i \left(f_\theta(s, a)^{(i)} - s'^{(i)}\right)^2\right]
 \end{equation}
-
-Training uses the Adam optimizer with learning rate $3 \times 10^{-4}$, batch
-size 512, and 50 epochs. The model gets saved every 10 epochs along with the
-normalization statistics.
 
 \textbf{Experience Buffer Management:} The experience buffer maintains a sliding window of recent transitions. In the real-environment baseline mode, we do not update the buffer after the initial collection. In the model-based mode, we periodically collect fresh data using the current policy, then retrain the \worldmodel{} every 10 policy optimization iterations.
 
@@ -836,20 +836,18 @@ by the improving policy.
 Within each training iteration, the policy optimization proceeds through
 several stages:
 
-\textbf{Stage 1: Rollout Generation:} We sample 30,000 initial states uniformly from the experience buffer and generate the 7-step imagined trajectories. The large batch size improves the GPU utilization and provides diverse training signal. The rollouts are generated in sub-batches of 100 to manage the memory, with each sub-batch processed in parallel via the JAX's vmap and scan primitives.
+\textbf{Stage 1: Rollout Generation:} We sample initial states uniformly from the experience buffer and generate the 7-step imagined trajectories. The large batch size improves the GPU utilization and provides diverse training signal. The rollouts are generated in sub-batches to manage the memory, with each sub-batch processed in parallel via the JAX's vmap and scan primitives.
 
-\textbf{Stage 2: Data Preparation:} The generated trajectories are flattened into a dataset of 210,000 $(s_t, a_t, r_t, \gamma_t, v_t)$ tuples. We compute the lambda-returns via a vectorized backward pass over all trajectories simultaneously. The advantages are then computed and normalized.
+\textbf{Stage 2: Data Preparation:} The generated trajectories are flattened into a dataset of $(s_t, a_t, r_t, \gamma_t, v_t)$ tuples. We compute the lambda-returns via a vectorized backward pass over all trajectories simultaneously. The advantages are then computed and normalized.
 
-\textbf{Stage 3: Actor-Critic Updates:} We perform 10 epochs of mini-batch gradient descent on the prepared data. Each epoch shuffles the data and processes it in batches of 256. The critic and actor get updated sequentially within each mini-batch:
+\textbf{Stage 3: Actor-Critic Updates:} We perform 10 epochs of mini-batch gradient descent on the prepared data. Each epoch shuffles the data and processes it in batches. The critic and actor get updated sequentially within each mini-batch:
 
 \begin{align}
 	\xi  & \gets \xi - \alpha_{\text{critic}} \nabla_\xi \mathcal{L}_{\text{critic}} \\
 	\psi & \gets \psi - \alpha_{\text{actor}} \nabla_\psi \mathcal{L}_{\text{actor}}
 \end{align}
 
-with learning rates $\alpha_{\text{critic}} = 5 \times 10^{-4}$ and
-$\alpha_{\text{actor}} = 8 \times 10^{-5}$. Both optimizers use the gradient
-clipping at global norm 0.5 to prevent the instability.
+
 
 \chapter{Experiments and Results}
 \label{chap:experiments}
@@ -873,7 +871,15 @@ the game state, which is common in Atari games when using object-centric
 approaches that encompass the score.
 
 The pixel-based DreamerV2 baseline uses the standard Atari configuration with
-84×84 greyscale observations.
+84 by 84 greyscale observations.
+
+Training uses the Adam optimizer with learning rate $3 \times 10^{-4}$, batch
+size 512, and 50 epochs with learning rates $\alpha_{\text{critic}} = 5 \times 10^{-4}$ and
+$\alpha_{\text{actor}} = 8 \times 10^{-5}$. Both optimizers use the gradient
+clipping at global norm 0.5 to prevent the instability. The model gets saved every 10 epochs along with the
+normalization statistics.
+
+
 
 \textbf{Evaluation Metrics:} We measure \worldmodel{} performance using mean
 squared error (MSE) over prediction horizons from 1 to 20 steps. We convert both models'
@@ -918,7 +924,11 @@ increase in prediction error. DreamerV2 predictions show more variability, with
 higher MSE. This is partly because of the challenge of pixel-level
 reconstruction from latent states. The consistent advantage across prediction
 horizons shows that the object-centric model has learned stable dynamics that
-respect Pong's physics.
+respect Pong's physics. Although benefecial this should not be taken out of context
+since we are using already premade object centric states from JAXAtari which
+makes the learning task significantly easier. Therefore there is a natural advantage
+especially in rendering are pixel based inaccuracies are just not possible with object centric states 
+that operate on integers.
 
 These results show a big improvement in prediction accuracy. The improved
 accuracy makes longer imagination horizons possible without too much error
@@ -939,7 +949,7 @@ sample efficiency.
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=0.9\textwidth]{images/training_curve.png}
-	\caption{Training progress comparison between object-centric (blue) and DreamerV2 (orange). The object-centric approach achieves high returns with an order of magnitude fewer environment interactions.}
+	\caption{Training progress comparison between object-centric (blue) and DreamerV2 (orange). The object-centric approach achieves high returns (extracted from real rollouts) with an order of magnitude fewer environment interactions.}
 	\label{fig:training_comparison}
 \end{figure}
 
@@ -965,7 +975,7 @@ assignment.
 
 The efficiency gains can be because of superior prediction accuracy (Section
 \ref{sec:world_model_perf}), compact 48-dimensional state representation that
-makes faster learning possible, and explicit object features providing natural
+makes faster learning possible, a shaped reward and explicit object features providing natural
 inductive bias. The object-centric approach can reach strong performance within
 100,000-200,000 steps. This places it among the most sample-efficient methods
 for this domain.
@@ -1012,11 +1022,13 @@ the visual perturbation causes misidentification of critical game elements.
 These results show that DreamerV2 builds on specific pixel-level features
 rather than learning object-centric representations. Despite high performance
 within the training distribution, the agent fails to extract representations of
-game entities. This hints into the direction of object-centric approaches:
-agents that operate on symbolic object representations (paddle positions, ball
+game entities. This suggests another advantage of our object-centric approach.
+Agents which operate on symbolic object representations (paddle positions, ball
 coordinates) achieve invariance to visual changes by construction. They encode
 only relevant geometric and semantic properties rather than pixel values
-assuming proper object extraction.
+assuming proper object extraction and thus our method is agnostic to such distribution 
+shifts.
+
 
 \section{Summary of Findings}
 \label{sec:summary}
@@ -1081,8 +1093,8 @@ with visual styling assuming robust object extraction.
 		Policy learning success                & Yes            & Yes         \\
 		\midrule
 		\textbf{RQ3: Robustness}               &                &             \\
-		Performance under pixel inversion      & N/A*           & -20.80      \\
-		Performance degradation                & N/A*           & 209\%       \\
+		Performance under pixel inversion      & 15-21*           & -20.80      \\
+		Performance degradation                & 0*           & 209\%       \\
 		\bottomrule
 	\end{tabular}
 	\\ \vspace{0.2cm}
@@ -1115,8 +1127,7 @@ steps) comes from multiple mechanisms. First, we have superior \worldmodel{}
 accuracy which enables higher-quality simulated experiences. Second, the
 compact 48-dimensional state representation reduces function approximation
 complexity. Third, semantic feature availability allows immediate leverage
-without extensive exploration. Also, we have simplified credit assignment
-through transparent causal chains from actions to outcomes.
+without extensive exploration.
 
 The pixel inversion experiment revealed critical brittleness in pixel-based
 representations. DreamerV2's complete collapse (from +19 to -21) with
@@ -1162,22 +1173,6 @@ compared to memory-intensive pixel-based convolutional architectures.
 
 \section{Limitations and Constraints}
 \label{sec:limitations}
-
-Several limitations constrain generalizability. All experiments were conducted
-exclusively in Pong, which is a relatively simple domain with limited object
-types (2 paddles, 1 ball), simple physics, and small state space.
-Generalization to more complex Atari games (Breakout with many bricks, Seaquest
-with multiple fish types) or domains with stochastic elements, partial
-observability, and complex multi-object interactions remains uncertain. Pong's
-continuous dynamics may be particularly favorable for object-centric
-prediction. Games with discrete object appearances (spawning, destruction) may
-experience larger prediction errors with significant downstream consequences.
-Games like Seaquest in JAXAtari represent object appearances by choosing some
-values to not be Zero. This means that the difference between an object being
-present or not is just a matter of a single bit in the representation. This
-makes it challenging to predict accurately and especially leads to the same
-error in case of a misprediction as the object being moved a single pixel left
-or right which is clearly not an error of the same magnitude.
 
 The 7-step imagination horizon is a short planning window. It constrains the
 approach to environments where limited temporal context suffices. Many RL tasks
@@ -1280,7 +1275,7 @@ object extraction sidesteps the challenge of learning object representations
 from pixels. Future work should expand to complex Atari games (Breakout,
 Seaquest, Space Invaders) that require graph neural networks or attention
 mechanisms for variable numbers of objects. Investigating unsupervised object
-discovery methods (slot attention, MONet), uncertainty-aware prediction,
+discovery methods (for example slot attention \cite{locatello2020object}), uncertainty-aware prediction,
 hierarchical \worldmodel{}s, and learned reward predictors would address key
 limitations. Testing robustness to dynamic perturbations (physics parameters),
 novel object configurations, and transfer learning across related environments
@@ -1302,44 +1297,5 @@ making RL systems more practical, trustworthy, and applicable to real-world
 problems where both efficiency and interpretability are essential.
 
 \printbibliography[title={References}]
-
-\appendix
-
-\chapter{Implementation Details}
-\label{app:implementation}
-
-The complete implementation of this thesis, including all source code, training
-scripts, evaluation tools, and experiment configurations, is publicly available
-on GitHub at \url{https://github.com/fhilprec/Object-Centric-World-Model-Reinforcement-Learning}
-\cite{ocwmrl2025}. The repository includes shell scripts for running the experiments presented
-later in this thesis.
-
-\section{Hyperparameter Sensitivity Analysis}
-\label{app:hyperparameter_analysis}
-Discuss the impact of varying key hyperparameters on model performance and training stability.
-
-\section{Additional Experimental Results}
-\label{app:additional_results}
-Include supplementary experimental results that support the main findings, such as extended comparisons or detailed metrics.
-
-\chapter{Technical Specifications}
-\label{app:technical_specs}
-
-\section{Hardware Requirements}
-\label{app:hardware_requirements}
-List the hardware specifications required to reproduce the experiments, including GPU/CPU details and memory requirements.
-
-\section{Software Dependencies}
-\label{app:software_dependencies}
-Detail the software libraries, frameworks, and versions used in the implementation.
-
-\section{Reproducibility Guidelines}
-\label{app:reproducibility}
-Provide step-by-step instructions for reproducing the experiments, including setup, data preparation, and execution.
-
-\chapter{Supplementary Figures and Tables}
-Include additional figures and tables that complement the main text, such as
-visualizations of training curves or ablation study results.
-\label{app:supplementary}
 
 \end{document}
