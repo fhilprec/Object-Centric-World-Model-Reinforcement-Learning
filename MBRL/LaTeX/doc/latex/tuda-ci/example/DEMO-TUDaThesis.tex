@@ -132,14 +132,14 @@ the agent will have no explicit way of predicting the next state of the
 environment. Model based Reinforcement learning augments the architecture by a
 model that is predicting the next state of the world but also still trains an
 agent. Although model free approaches usually are less complex since they only
-have to learn one model, the agent they also have significant disadvantages.
+have to learn one model (the agent), they also have significant disadvantages.
 
-Model free learning often struggle with sample efficiency and generalization to
+Model free learning often struggles with sample efficiency and generalization to
 new tasks. Small changes in the environment can lead to significant drops in
 performance. Moreover, agents can learn misaligned policies that exploit
-loopholes in the environment rather than achieving the intended goals. These
-challenges highlight the need for more structured and interpretable learning
-methods.
+loopholes in the environment rather than achieving the intended goals.
+Thus interpretability of learned policies usually suffers and sample efficiency is
+low.
 
 A solution to the lack of structure and interpretability can be Object
 Centricity, which focuses on learning or providing some kind of object
@@ -170,11 +170,11 @@ paradigms. This thesis is therefore guided by the following research questions:
 
 Within this thesis we propose to develop a world model that is running on top
 of object centric states provided by the a framework called JAXAtari
-\cite{jaxatari}. This world model will be trained to predict the next state of
-the environment given the current state and actionWithin. An actor-critic
-framework based on the DreamerV2 \cite{hafner2020dream} architecture will be
+\cite{jaxatari}. This world model is trained to predict the next state of
+the environment given the current state and action. An actor-critic
+framework based on the DreamerV2 \cite{hafner2020dream} architecture is
 integrated with the world model to learn policies from imagined rollouts. The
-training pipeline will involve alternating between updating the world model and
+training pipeline involves alternating between updating the world model and
 optimizing the policy based on simulated experiences. The performance of the
 proposed approach will be evaluated in the Pong environment from the Atari
 benchmark suite, comparing it against pixel-based baselines and assessing its
@@ -182,7 +182,7 @@ sample efficiency and robustness. Combining both appraoches thus offers the
 possibility of complex planning using object centric states. Although out of
 the scope of this thesis one could imagine interpretable planned stategies
 describing how certain objects influence decisions of the agent. This is
-usually quite hard with existing Model Based approaches since they usually rely
+usually quite hard with existing model based approaches since they usually rely
 on latent space which is then used to make predictions resulting in the loss of
 human interpretability.
 
