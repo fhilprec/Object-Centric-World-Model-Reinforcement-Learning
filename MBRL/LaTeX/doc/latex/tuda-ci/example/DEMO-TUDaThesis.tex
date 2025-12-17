@@ -68,6 +68,7 @@
 \usepackage{xcolor}
 \usepackage{graphicx}
 \usepackage{subcaption}
+\usepackage{float}
 \usepackage{hyperref}
 
 %%%%%%%%%%%%%%%%%%%
@@ -487,15 +488,16 @@ the \worldmodel{}. The implementation is based on the DreamerV2 architecture
 Moreover we chose the game pong from the Atari benchmark suite to exemplify our
 approach since it is a well understood environment and not too complex to
 train on. The complete implementation including all training scripts and
-evaluation tools is publicly available \cite{ocwmrl2025}. 
-\section{\worldmodel{} Architecture} \label{sec:world_model_arch}
+evaluation tools is publicly available \cite{ocwmrl2025}.
 
-\begin{figure}[ht]
+\begin{figure}[H]
 	\centering
-	\includegraphics[width=0.9\textwidth]{images/PongArchitecture.png}
+	\includegraphics[width=0.9\textwidth]{images/Pong.drawio.png}
 	\caption{Overview of the Pong \worldmodel{} architecture. The model takes in the current object-centric state and action, processes them through a deep residual MLP, and predicts the next object-centric state.}
 	\label{fig:pong_architecture}
 \end{figure}
+
+\section{\worldmodel{} Architecture} \label{sec:world_model_arch}
 
 Unlike DreamerV2 which learns on images we leverage the fact that we already
 have object centric states. So instead of a 84x84 Pixel image as input we have
