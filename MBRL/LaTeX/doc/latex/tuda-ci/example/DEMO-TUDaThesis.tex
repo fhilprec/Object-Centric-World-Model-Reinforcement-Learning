@@ -69,6 +69,11 @@
 \usepackage{graphicx}
 \usepackage{subcaption}
 
+%%%%%%%%%%%%%%%%%%%
+% Custom macros
+%%%%%%%%%%%%%%%%%%%
+\newcommand{\worldmodel}{world model}
+
 \begin{document}
 
 \Metadata{
@@ -134,12 +139,15 @@ model that is predicting the next state of the world but also still trains an
 agent. Although model free approaches usually are less complex since they only
 have to learn one model (the agent), they also have significant disadvantages.
 
-Model free learning often struggles with sample efficiency and generalization to
-new tasks. Small changes in the environment can lead to significant drops in
+Model free learning often struggles with sample efficiency and generalization
+to new tasks. Small changes in the environment can lead to significant drops in
 performance. Moreover, agents can learn misaligned policies that exploit
-loopholes in the environment rather than achieving the intended goals.
-Thus interpretability of learned policies usually suffers and sample efficiency is
-low.
+loopholes in the environment rather than achieving the intended goals making
+explainability of such agents quite hard. Moreover Reinforcement Learning and
+model free approaches in particular are notoriously data hungr often requiring
+millions of samples to learn reasonable policies. For Real World applications
+or robotics this is often not feasible as sampling might involve wearing down
+expensive machinery.
 
 A solution to the lack of structure and interpretability can be Object
 Centricity, which focuses on learning or providing some kind of object
@@ -157,39 +165,39 @@ integrating object-centric learning into model based reinforcement learning
 frameworks to address these challenges by harvesting the strengths of both
 paradigms. This thesis is therefore guided by the following research questions:
 \begin{enumerate}
-	\item How do object-centric world models compare to pixel-based world models
+	\item How do object-centric \worldmodel{}s compare to pixel-based \worldmodel{}s
 	      regarding prediction accuracy and sample efficiency?
 	\item Can an actor-critic framework be effectively trained on simulated rollouts from
-	      object-centric world models?
-	\item What is the impact of different world model architectures (such as LSTM-based
+	      object-centric \worldmodel{}s?
+	\item What is the impact of different \worldmodel{} architectures (such as LSTM-based
 	      versus alternative designs) on the overall performance of object-centric model
 	      based reinforcement learning in structured environments?
-	\item Does the object-centric inductive bias in world models improve robustness to
+	\item Does the object-centric inductive bias in \worldmodel{}s improve robustness to
 	      changes in the environment?
 \end{enumerate}
 
-Within this thesis we propose to develop a world model that is running on top
+Within this thesis we propose to develop a \worldmodel{} that is running on top
 of object centric states provided by the a framework called JAXAtari
-\cite{jaxatari}. This world model is trained to predict the next state of
-the environment given the current state and action. An actor-critic
-framework based on the DreamerV2 \cite{hafner2020dream} architecture is
-integrated with the world model to learn policies from imagined rollouts. The
-training pipeline involves alternating between updating the world model and
-optimizing the policy based on simulated experiences. The performance of the
-proposed approach will be evaluated in the Pong environment from the Atari
-benchmark suite, comparing it against pixel-based baselines and assessing its
-sample efficiency and robustness. Combining both appraoches thus offers the
-possibility of complex planning using object centric states. Although out of
-the scope of this thesis one could imagine interpretable planned stategies
-describing how certain objects influence decisions of the agent. This is
-usually quite hard with existing model based approaches since they usually rely
-on latent space which is then used to make predictions resulting in the loss of
-human interpretability.
+\cite{jaxatari}. This \worldmodel{} is trained to predict the next state of the
+environment given the current state and action. An actor-critic framework based
+on the DreamerV2 \cite{hafner2020dream} architecture is integrated with the
+\worldmodel{} to learn policies from imagined rollouts. The training pipeline
+involves alternating between updating the \worldmodel{} and optimizing the policy
+based on simulated experiences. The performance of the proposed approach will
+be evaluated in the Pong environment from the Atari benchmark suite, comparing
+it against pixel-based baselines and assessing its sample efficiency and
+robustness. Combining both appraoches thus offers the possibility of complex
+planning using object centric states. Although out of the scope of this thesis
+one could imagine interpretable planned stategies describing how certain
+objects influence decisions of the agent. This is usually quite hard with
+existing model based approaches since they usually rely on latent space which
+is then used to make predictions resulting in the loss of human
+interpretability.
 
 The remainder of this thesis is structured as follows: Chapter 2 provides
 background information on reinforcement learning, model based approaches, and
 object-centric representations. Chapter 3 details the methodology, including
-the world model architecture, actor-critic integration, and training pipeline.
+the \worldmodel{} architecture, actor-critic integration, and training pipeline.
 Chapter 4 presents the experimental setup, results, and analysis. Chapter 5
 discusses the findings, challenges, and implications of the results. Finally,
 Chapter 6 concludes the thesis and outlines directions for future work.
@@ -226,10 +234,10 @@ every probability computed is only conditioned on the current state and action
 so a finite set of values instead of a potentially infinite set of past states
 and actions.
 
-Given that we now defined what the environment actually means let us examine at
+Given that we now defined what the environment actually means let us examine
 the goal of the agent. The agent's goal is to learn an optimal policy
 $\pi^*(s)$ that maximizes the expected cumulative discounted reward, known as
-the return:
+the return \cite{sutton2018reinforcement}:
 \begin{equation}
 	G_t = \sum_{k=0}^{\infty} \gamma^k R_{t+k+1}
 \end{equation}
@@ -243,7 +251,7 @@ state $s$ and following policy $\pi$:
 In a similar manner, $Q^\pi(s,a)$ represents the expected return when starting
 from state $s$, taking action $a$, and then following policy $\pi$. Making the
 action value function a function of both state and action. This can sometimes
-be more useful since it directly tells you the value of taking a certain action
+be more useful since it directly reveals the value of taking a certain action
 as well.
 
 Model free reinforcement learning approaches learn optimal policies directly
@@ -255,11 +263,11 @@ potentially sample-inefficient.
 As mentioned in the introduction, model free rely on learning an agent directly
 by interacting with the environment and receiving feedback in the form of
 rewards. This trial-and-error process allows the agent to improve its policy
-over time. By omitting a world model the complexity of the overall system is
+over time. By omitting a \worldmodel{} the complexity of the overall system is
 reduced but the the agent is usually quite sample inefficient
 \cite{duan2016benchmarking,kaiser2019model}. Also, the lack of a model can make
 it difficult for the agent to plan ahead or consider the long-term consequences
-of its actions. On top of that world models can improve generalization to new
+of its actions. On top of that \worldmodel{}s can improve generalization to new
 tasks and make the agent more robust \cite{ha2018world,hafner2020dream}.
 Moreover they provide limited interpretability with regards to their learned
 policy.
@@ -273,7 +281,7 @@ Actor-Critic \cite{barto1983neuronlike}, and Proximal Policy Optimization (PPO)
 Model based reinforcement learning addresses some limitations of model free
 approaches by learning an explicit model of the environment dynamics.
 
-The world model typically learns to predict next states and rewards given
+In MBRL the dynamics predictor learns to predict next states and rewards given
 current states and actions:
 
 \begin{align}
@@ -282,37 +290,34 @@ current states and actions:
 \end{align}
 
 where $f_\theta$ and $g_\phi$ represent parameterized functions (often neural
-networks) that approximate the true environment dynamics. Sometimes the reward
-prediction can be omitted if the reward can somehow be directly read out from
-the game itself which is common in Atari games for example assuming there
-exists an object centric approach that encompasses the score.
+networks) that approximate the true environment dynamics.
 
 Model based methods potentially have much better sample efficiency since it
 takes less sampling in the environment to learn reasonable state transitions
 than it takes to train a reinforcement learning. After the model has been
-properly trained the agent can learn entirely within the worldmodel making
+properly trained the agent can learn entirely within the \worldmodel{} making
 additional sampling unnecessary. Although depending on game complexity the
 initial sampling which is usually done by a random policy might not see diverse
 enough states. This is for most Atari Games not an issue but for more complex
-environment it can be important to retrain the worldmodel with new experience
+environment it can be important to retrain the \worldmodel{} with new experience
 that is sampled by the now trained (within the model) trained agent in the real
 environment \cite{janner2019trust,sutton1991dyna}. Moreover there are
 approaches that use explicit planning strategies that hugely benefit
-interpretability. Using the worldmodel the agent can make guesses what might
+interpretability. Using the \worldmodel{} the agent can make guesses what might
 happen in the future and explicitly reason why it decides for a certain action
 \cite{schrittwieser2020mastering,greydanus2018visualizing}.
 
 But training a well designed and stable model can create several challenges for
-example the world model can introduce a bias into the agent which doesnt hold
+example the \worldmodel{} can introduce a bias into the agent which doesnt hold
 in the true environment. The agent can learn to exploit errors in the
-worldmodel to artificially boost its score but then performing much worse
+\worldmodel{} to artificially boost its score but then performing much worse
 during inference \cite{talvitie2017self,lambert2020learning}.
 
 \section{Dreamer Architecture}
 \label{sec:dreamer_architecture}
 
 The Dreamer architecture is a family of model based RL algorithms (DreamerV1,
-V2, V3) that use a world model together with actor-critic methods. The main
+V2, V3) that use a \worldmodel{} together with actor-critic methods. The main
 idea is to learn a compact latent space where the agent can imagine rollouts
 and train its policy without always interacting with the real environment.
 Dreamer builds on ideas from PlaNet
@@ -323,18 +328,18 @@ games.
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=0.9\textwidth]{images/DreamerFlow.png}
-	\caption{Overview of the DreamerV2 training pipeline. The world model learns to predict future states and rewards, enabling the actor-critic framework to optimize policies using imagined rollouts. Taken from Hafner et al.~\cite{hafner2021mastering}, Fig.~1.}
+	\caption{Overview of the DreamerV2 training pipeline. The \worldmodel{} learns to predict future states and rewards, enabling the actor-critic framework to optimize policies using imagined rollouts. Taken from Hafner et al.~\cite{hafner2021mastering}, Fig.~1.}
 	\label{fig:dreamer_flow}
 \end{figure}
 
 DreamerV2 improves DreamerV1 by making it more stable and able to handle
 discrete actions, which is important for Atari. DreamerV3 tries to make the
 method work for many different tasks without changing hyperparameters. There
-are different ways to train a world model. You can predict future observations
+are different ways to train a \worldmodel{}. You can predict future observations
 directly or predict latent states. In Dreamers case as shown in Figure
-\ref{fig:dreamer_flow} the world model predicts latent states.
+\ref{fig:dreamer_flow} the \worldmodel{} predicts latent states.
 
-DreamerV2 builds upon the world model with an actor-critic framework. The actor
+DreamerV2 builds upon the \worldmodel{} with an actor-critic framework. The actor
 is responsible for selecting actions based on the current latent state, while
 the critic evaluates the chosen actions by estimating their value. Central to
 DreamerV2 is the use of the $\lambda$-return, which provides a balance between
@@ -459,7 +464,7 @@ just-in-time compilation and vectorized environments. JAXAtari maintains
 compatibility with the object-centric state extraction capabilities of OCAtari
 while providing enhanced computational efficiency for large-scale experiments.
 This framework is particularly relevant for our work as it enables efficient
-training of world models on object-centric representations while maintaining
+training of \worldmodel{}s on object-centric representations while maintaining
 the standardized benchmarking capabilities essential for reproducible research.
 
 Object-centric representations naturally lend themselves to relational
@@ -493,21 +498,21 @@ representation can thus suffer from several issues namely:
 
 The integration of relational reasoning with model based approaches offers
 significant potential for improving agent performance. By incorporating
-relational structure into world models, agents can make more accurate
+relational structure into \worldmodel{}s, agents can make more accurate
 predictions about future states and plan more effectively. This integration
-forms a core component of our proposed approach, where object-centric world
-models explicitly encode relational information to enhance both prediction
+forms a core component of our proposed approach, where object-centric \worldmodel{}s
+explicitly encode relational information to enhance both prediction
 accuracy and policy learning.
 
 \chapter{Methodology}
 \label{chap:methodology}
 
-In this chapther we explore the actual implementation of the worldmodel along
+In this chapther we explore the actual implementation of the \worldmodel{} along
 with the actor critic which learns in the imagined rollouts generated by the
-worldmodel. The implementation is based on the DreamerV2 architecture
+\worldmodel{}. The implementation is based on the DreamerV2 architecture
 \cite{hafner2020dream} described in Section \ref{sec:dreamer_architecture}.
 
-\section{World Model Architecture}
+\section{\worldmodel{} Architecture}
 \label{sec:world_model_arch}
 
 Unlike DreamerV2 which learns on images we leverage the fact that we already
@@ -525,7 +530,7 @@ state in Pong is represented as a \texttt{PongObservation} containing:
 \subsection{Deep Residual MLP (PongMLPDeep)}
 \label{subsec:pongmlp}
 
-Our world model is a deep feedforward neural network. Instead of using
+Our \worldmodel{} is a deep feedforward neural network. Instead of using
 recurrent architectures, we rely on frame stacking to provide the temporal
 context. The input state contains 4 consecutive frames, which gives the model
 information about velocities and trajectories through the temporal differences
@@ -605,7 +610,7 @@ and denormalize the predictions back to the original scale:
 	\tilde{s}_{t+1} = \hat{s}_{t+1} \cdot \sigma + \mu
 \end{equation}
 
-For the world model training, we additionally apply feature-specific loss
+For the \worldmodel{} training, we additionally apply feature-specific loss
 weighting to emphasize the physically critical variables:
 
 \begin{equation}
@@ -622,7 +627,7 @@ which are crucial for proper reward prediction and policy learning.
 \label{sec:actor_critic}
 
 Following the DreamerV2 framework, we train an actor-critic policy entirely
-from the imagined rollouts generated by our object-centric world model.
+from the imagined rollouts generated by our object-centric \worldmodel{}.
 Different to the original DreamerV2 which uses latent states from a learned
 image encoder, our approach uses the object-centric states from JAXAtari. This
 architecture avoids the need for the representation learning while maintaining
@@ -666,12 +671,12 @@ training procedure operates in two phases:
 
 Given a batch of $N=30000$ initial states sampled from the experience buffer,
 we generate the imagined trajectories of length $H=7$ by repeatedly applying
-the current actor policy in the world model:
+the current actor policy in the \worldmodel{}:
 
 \begin{algorithm}
 	\caption{Imagined Rollout Generation}
 	\begin{algorithmic}[1]
-		\STATE \textbf{Input:} Initial states $\{s_0^{(i)}\}_{i=1}^N$, world model $f_\theta$, actor $\pi_\psi$, critic $v_\xi$
+		\STATE \textbf{Input:} Initial states $\{s_0^{(i)}\}_{i=1}^N$, \worldmodel{} $f_\theta$, actor $\pi_\psi$, critic $v_\xi$
 		\STATE \textbf{Output:} Trajectories $(s_t, a_t, r_t, \gamma_t, v_t)$ for $t=0..H$
 		\FOR{$i = 1$ to $N$}
 		\STATE $s_t \gets s_0^{(i)}$ \hfill // Initialize from experience buffer
@@ -686,7 +691,7 @@ the current actor policy in the world model:
 	\end{algorithmic}
 \end{algorithm}
 
-The rollout length $H=7$ was chosen to balance the worldmodel accuracy with
+The rollout length $H=7$ was chosen to balance the \worldmodel{} accuracy with
 providing the agent with sufficient horizon to plan steps. Longer rollouts ($H
 	> 10$) accumulated the prediction errors that degraded the policy learning.
 
@@ -775,10 +780,10 @@ which improves the gradient stability.
 \section{Training Pipeline}
 \label{sec:training_pipeline}
 
-Our complete training procedure alternates between the world model training and
-the policy optimization, with periodic retraining of the world model using
+Our complete training procedure alternates between the \worldmodel{} training and
+the policy optimization, with periodic retraining of the \worldmodel{} using
 fresh experience collected by the improving policy. This cyclic approach is in
-many instances of model based RL incredible important since the world model
+many instances of model based RL incredible important since the \worldmodel{}
 needs proper and diverse data to learn from to also predict later stages of the
 game accurately to avoid out of distribution states. This is less critical in
 Pong since the state space is relatively small, but in more complex games this
@@ -787,11 +792,11 @@ becomes essential.
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=0.3\textwidth]{images/trainingschedule.png}
-	\caption{Training schedule showing the alternating phases of world model training and policy optimization.}
+	\caption{Training schedule showing the alternating phases of \worldmodel{} training and policy optimization.}
 	\label{fig:trainingschedule}
 \end{figure}
 
-\subsection{World Model Training and Experience Collection}
+\subsection{\worldmodel{} Training and Experience Collection}
 \label{subsec:world_model_training}
 
 \begin{algorithm}
@@ -800,9 +805,9 @@ becomes essential.
 		\STATE \textbf{// Phase 1: Initial Setup}
 		\IF{no experience buffer exists}
 		\STATE Collect 160,000 steps using ball-tracking policy in real environment
-		\STATE Train world model $f_\theta$ for 50 epochs on collected data
+		\STATE Train \worldmodel{} $f_\theta$ for 50 epochs on collected data
 		\ENDIF
-		\STATE Load world model parameters $\theta$ and experience buffer
+		\STATE Load \worldmodel{} parameters $\theta$ and experience buffer
 		\STATE Initialize actor $\pi_\psi$ and critic $v_\xi$ with random weights
 		\STATE
 		\STATE \textbf{// Phase 2: Iterative Training}
@@ -813,7 +818,7 @@ becomes essential.
 		\STATE Compute lambda-returns using $v_\xi$
 		\STATE Update $\pi_\psi$ and $v_\xi$ for 10 epochs on imagined data
 		\STATE
-		\STATE \textbf{// World model retraining (for model-based mode only)}
+		\STATE \textbf{// \worldmodel{} retraining (for model-based mode only)}
 		\IF{$i \mod 10 = 0$ and using model-based rollouts}
 		\STATE Collect 160,000 new steps using current $\pi_\psi$ in real environment
 		\STATE Retrain $f_\theta$ for 50 epochs on updated experience buffer
@@ -823,7 +828,7 @@ becomes essential.
 \end{algorithm}
 
 The training pipeline begins with initially collection experience using a pre
-defined heuristic policy, followed by alternating phases of world model
+defined heuristic policy, followed by alternating phases of \worldmodel{}
 training and policy optimization. This policy moves the paddle toward the
 ball's y-coordinate with 50\% random exploration, which provides reasonable
 coverage of reachable states without requiring a pre-trained agent. The
@@ -832,10 +837,10 @@ which is sufficient for learning proper environment dynamics.
 
 The collected experience is stored as tuples $(s_t, a_t, s_{t+1})$ with
 metadata marking the episode and life boundaries (ball resets). These
-boundaries help in training the world model to avoid learning spurious
+boundaries help in training the \worldmodel{} to avoid learning spurious
 transitions across them.
 
-\textbf{World Model Training Details:} The world model is trained via supervised learning to predict the one-step transitions. We use the mean squared error loss with feature-specific weighting:
+\textbf{\worldmodel{} Training Details:} The \worldmodel{} is trained via supervised learning to predict the one-step transitions. We use the mean squared error loss with feature-specific weighting:
 
 \begin{equation}
 	\mathcal{L}_{\text{world}} = \mathbb{E}_{(s,a,s') \sim \mathcal{D}}\left[\sum_{i=1}^{48} w_i \left(f_\theta(s, a)^{(i)} - s'^{(i)}\right)^2\right]
@@ -845,10 +850,10 @@ Training uses the Adam optimizer with learning rate $3 \times 10^{-4}$, batch
 size 512, and 50 epochs. The model gets saved every 10 epochs along with the
 normalization statistics.
 
-\textbf{Experience Buffer Management:} The experience buffer maintains a sliding window of recent transitions. In the real-environment baseline mode, we do not update the buffer after the initial collection. In the model-based mode, we periodically collect fresh data using the current policy, then retrain the world model every 10 policy optimization iterations.
+\textbf{Experience Buffer Management:} The experience buffer maintains a sliding window of recent transitions. In the real-environment baseline mode, we do not update the buffer after the initial collection. In the model-based mode, we periodically collect fresh data using the current policy, then retrain the \worldmodel{} every 10 policy optimization iterations.
 
 When retraining, we compeletely resample transitions from the updated buffer to
-ensure the world model learns from the latest distribution of states visited by
+ensure the \worldmodel{} learns from the latest distribution of states visited by
 the improving policy.
 
 \subsection{Policy Optimization}
@@ -877,23 +882,26 @@ clipping at global norm 0.5 to prevent the instability.
 
 This chapter shows the experiments of the object-centric model based
 reinforcement learning approach. We do three experiments that compare
-object-centric world models against pixel-based baselines. We look at
+object-centric \worldmodel{}s against pixel-based baselines. We look at
 prediction accuracy, sample efficiency, and robustness to visual changes.
 
 \section{Experimental Setup}
 \label{sec:exp_setup}
 
 All experiments are done in the Pong environment. For the object-centric
-approach, we use JAXAtari to extract states. This gives us direct access to object
-positions and dimensions. This includes player paddle position (x, y), dimensions (width,
-height), enemy paddle position and dimensions, and ball position and dimensions. We
-use frame stacking with 4 frames, so we get a 48-dimensional
-state vector after we remove score features.
+approach, we use JAXAtari to extract states. This gives us direct access to
+object positions and dimensions. This includes player paddle position (x, y),
+dimensions (width, height), enemy paddle position and dimensions, and ball
+position and dimensions. We use frame stacking with 4 frames, so we get a
+48-dimensional state vector after we remove score features. The reward
+prediction is omitted in our setup as the reward can be directly read out from
+the game state, which is common in Atari games when using object-centric
+approaches that encompass the score.
 
-The pixel-based DreamerV2 baseline uses the standard Atari configuration with 84×84
-greyscale observations.
+The pixel-based DreamerV2 baseline uses the standard Atari configuration with
+84×84 greyscale observations.
 
-\textbf{Evaluation Metrics:} We measure world model performance using mean
+\textbf{Evaluation Metrics:} We measure \worldmodel{} performance using mean
 squared error (MSE) over prediction horizons from 1 to 20 steps. We convert both models'
 predictions to 84×84 grayscale images to make comparison fair. Sample
 efficiency is measured by the environment steps that are required to reach high episode
@@ -901,46 +909,46 @@ returns. We test robustness through pixel inversion (transforming pixel
 value $p$ to $255 - p$). This changes background colors but preserves
 object boundaries.
 
-Because of computational constraints, we report single-seed results for Dreamer and
-three seeds for the object-centric approach. The trends are consistent
+Because of computational constraints, we report single-seed results for Dreamer
+and three seeds for the object-centric approach. The trends are consistent
 across seeds.
 
-\section{World Model Prediction Accuracy}
+\section{\worldmodel{} Prediction Accuracy}
 \label{sec:world_model_perf}
 
-We compare prediction accuracy of object-centric and pixel-based world models
-using a standardized protocol. Both models do 20-step autoregressive
-rollouts from 10 randomly sampled initial states with the same action
-sequences. We convert predictions to 84×74 grayscale images for fair
-comparison. We use this resolution because the top of the image is
-cropped to remove the score display in Pong.
+We compare prediction accuracy of object-centric and pixel-based \worldmodel{}s
+using a standardized protocol. Both models do 20-step autoregressive rollouts
+from 10 randomly sampled initial states with the same action sequences. We
+convert predictions to 84×74 grayscale images for fair comparison. We use this
+resolution because the top of the image is cropped to remove the score display
+in Pong.
 
-Figure \ref{fig:prediction_comparison} shows the results. It shows
-clear advantages for the object-centric approach across all horizons.
+Figure \ref{fig:prediction_comparison} shows the results. It shows clear
+advantages for the object-centric approach across all horizons.
 
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=0.9\textwidth]{images/model_comparison_plot.png}
-	\caption{World model prediction error comparison over multi-step rollouts. The JAX object-centric world model (orange) exhibits substantially lower MSE compared to DreamerV2 (blue) across all prediction horizons from 1 to 20 steps.}
+	\caption{\worldmodel{} prediction error comparison over multi-step rollouts. The JAX object-centric \worldmodel{} (orange) exhibits substantially lower MSE compared to DreamerV2 (blue) across all prediction horizons from 1 to 20 steps.}
 	\label{fig:prediction_comparison}
 \end{figure}
 
 At single-step prediction, the object-centric model achieves MSE of
 approximately 2-6, while DreamerV2 exhibits 45-60. At the 20-step horizon, the
-object-centric model has MSE below 20, while DreamerV2's error grows to
-60-90. When we average over all horizons, the object-centric approach achieves mean
-MSE of approximately 10 compared to DreamerV2's 65. This is an 85\%
-reduction in prediction error.
+object-centric model has MSE below 20, while DreamerV2's error grows to 60-90.
+When we average over all horizons, the object-centric approach achieves mean
+MSE of approximately 10 compared to DreamerV2's 65. This is an 85\% reduction
+in prediction error.
 
 Object centric predictions show smoother trajectories and a more gradual
-increase in prediction error. DreamerV2 predictions show more variability,
-with higher MSE. This is partly because of the challenge of pixel-level reconstruction
-from latent states. The consistent advantage across prediction horizons
-shows that the object-centric model has learned stable dynamics that respect Pong's
-physics.
+increase in prediction error. DreamerV2 predictions show more variability, with
+higher MSE. This is partly because of the challenge of pixel-level
+reconstruction from latent states. The consistent advantage across prediction
+horizons shows that the object-centric model has learned stable dynamics that
+respect Pong's physics.
 
-These results show a big improvement in prediction accuracy. The
-improved accuracy makes longer imagination horizons possible without too much error
+These results show a big improvement in prediction accuracy. The improved
+accuracy makes longer imagination horizons possible without too much error
 accumulation. This supports reliable multi-step policy learning as described in
 Section \ref{subsec:imagined_rollouts}.
 
@@ -948,12 +956,12 @@ Section \ref{subsec:imagined_rollouts}.
 \label{sec:policy_results}
 
 We evaluate actor-critic training on imagined rollouts from the object-centric
-world model. We compare learning efficiency and final performance against
+\worldmodel{}. We compare learning efficiency and final performance against
 DreamerV2.
 
 Figure \ref{fig:training_comparison} shows learning curves. It plots episode
-return against cumulative environment steps. This shows big differences in sample
-efficiency.
+return against cumulative environment steps. This shows big differences in
+sample efficiency.
 
 \begin{figure}[ht]
 	\centering
@@ -962,12 +970,11 @@ efficiency.
 	\label{fig:training_comparison}
 \end{figure}
 
-The object-centric approach shows rapid learning in early
-training. Starting from returns around -20, the model quickly improves to above
-+15 within 100,000-200,000 environment steps. DreamerV2 shows gradual
-learning over 5.5 million steps. It requires 1-2 million steps to achieve
-similar performance levels. This is an order of magnitude difference in
-sample efficiency.
+The object-centric approach shows rapid learning in early training. Starting
+from returns around -20, the model quickly improves to above +15 within
+100,000-200,000 environment steps. DreamerV2 shows gradual learning over 5.5
+million steps. It requires 1-2 million steps to achieve similar performance
+levels. This is an order of magnitude difference in sample efficiency.
 
 Despite the big differences in sample efficiency, both approaches converge to
 similar final performance (15-21 return range). The object-centric approach
@@ -975,20 +982,19 @@ shows rapid early convergence followed by a stable plateau, while DreamerV2
 shows longer learning with occasional fluctuations. Both eventually learn
 effective Pong policies that achieve near-optimal play.
 
-The successful policy learning from object-centric imagined rollouts
-shows that DreamerV2-style actor-critic can learn optimal policies from
-simulated experiences. The rapid learning shows that imagined rollouts provide
-meaningful training signal. The stable performance suggests the actor-critic
-avoids overfitting to world model errors. The 7-step imagination horizon
-is sufficient for effective policy learning with appropriate temporal
-credit assignment.
+The successful policy learning from object-centric imagined rollouts shows that
+DreamerV2-style actor-critic can learn optimal policies from simulated
+experiences. The rapid learning shows that imagined rollouts provide meaningful
+training signal. The stable performance suggests the actor-critic avoids
+overfitting to \worldmodel{} errors. The 7-step imagination horizon is sufficient
+for effective policy learning with appropriate temporal credit assignment.
 
 The efficiency gains can be because of superior prediction accuracy (Section
-\ref{sec:world_model_perf}), compact 48-dimensional state representation
-that makes faster learning possible, and explicit object features providing natural
-inductive bias. The object-centric approach can reach strong
-performance within 100,000-200,000 steps. This places it among the most
-sample-efficient methods for this domain.
+\ref{sec:world_model_perf}), compact 48-dimensional state representation that
+makes faster learning possible, and explicit object features providing natural
+inductive bias. The object-centric approach can reach strong performance within
+100,000-200,000 steps. This places it among the most sample-efficient methods
+for this domain.
 
 \section{Robustness to Visual Perturbations}
 \label{sec:robustness}
@@ -1018,26 +1024,25 @@ conditions. We collect 20 episodes in each condition without retraining.
 	\end{tabular}
 \end{table}
 
-Under normal conditions, DreamerV2 achieves $19.15 \pm 1.19$ mean return,
-which shows effective policy learning. With inversion, performance collapses
+Under normal conditions, DreamerV2 achieves $19.15 \pm 1.19$ mean return, which
+shows effective policy learning. With inversion, performance collapses
 completely to $-20.80 \pm 0.52$, with 19 of 20 episodes achieving -21 (worst
-possible). This is a 209\% degradation, going from near-optimal
-to performance similar to random actions.
+possible). This is a 209\% degradation, going from near-optimal to performance
+similar to random actions.
 
 The consistency of failure across all episodes and minimal variance in the
-inverted condition show systematic misperception rather than occasional
-errors. The agent does a consistent but fundamentally wrong strategy,
-which suggests the visual perturbation causes misidentification of critical game
-elements.
+inverted condition show systematic misperception rather than occasional errors.
+The agent does a consistent but fundamentally wrong strategy, which suggests
+the visual perturbation causes misidentification of critical game elements.
 
-These results show that DreamerV2 builds on specific pixel-level
-features rather than learning object-centric representations. Despite high
-performance within the training distribution, the agent fails to extract
-representations of game entities. This hints into the direction of
-object-centric approaches: agents that operate on symbolic object representations
-(paddle positions, ball coordinates) achieve invariance to visual changes by
-construction. They encode only relevant geometric and semantic properties rather
-than pixel values assuming proper object extraction.
+These results show that DreamerV2 builds on specific pixel-level features
+rather than learning object-centric representations. Despite high performance
+within the training distribution, the agent fails to extract representations of
+game entities. This hints into the direction of object-centric approaches:
+agents that operate on symbolic object representations (paddle positions, ball
+coordinates) achieve invariance to visual changes by construction. They encode
+only relevant geometric and semantic properties rather than pixel values
+assuming proper object extraction.
 
 \section{Summary of Findings}
 \label{sec:summary}
@@ -1046,34 +1051,34 @@ In this final section we summarize the key findings from our experiments. We
 directly address the research questions posed in Chapter
 \ref{chap:introduction}.
 
-\textbf{RQ1: How do object-centric world models compare to pixel-based world
-	models regarding prediction accuracy and sample efficiency?}
+\textbf{RQ1: How do object-centric \worldmodel{}s compare to pixel-based \worldmodel{}s
+	regarding prediction accuracy and sample efficiency?}
 
-The prediction accuracy experiment (Section \ref{sec:world_model_perf})
-shows clear superiority of object-centric world models. The
-object-centric approach achieves 85\% reduction in mean prediction error (MSE
-$\approx$10 vs. $\approx$65) with single-step errors of 2-6 compared to
-DreamerV2's 45-60. This advantage persists across all 20 prediction horizons.
+The prediction accuracy experiment (Section \ref{sec:world_model_perf}) shows
+clear superiority of object-centric \worldmodel{}s. The object-centric approach
+achieves 85\% reduction in mean prediction error (MSE $\approx$10 vs.
+$\approx$65) with single-step errors of 2-6 compared to DreamerV2's 45-60. This
+advantage persists across all 20 prediction horizons.
 
 For sample efficiency, the policy learning experiment (Section
 \ref{sec:policy_results}) shows the object-centric approach reaches high
 performance (+15 return) within 100,000-200,000 environment steps compared to
-DreamerV2's 1-2 million steps. This is an order of magnitude improvement. Both methods
-achieve similar final performance (15-21 return range). This confirms that
-improved world model accuracy translates directly into dramatically reduced
-data requirements.
+DreamerV2's 1-2 million steps. This is an order of magnitude improvement. Both
+methods achieve similar final performance (15-21 return range). This confirms
+that improved \worldmodel{} accuracy translates directly into dramatically
+reduced data requirements.
 
 \textbf{RQ2: Can an actor-critic framework be effectively trained on simulated
-	rollouts from object-centric world models?}
+	rollouts from object-centric \worldmodel{}s?}
 
-The policy learning experiment answers this question
-positively. The DreamerV2-style actor-critic successfully learned optimal
-policies entirely from 7-step imagined rollouts. It achieved rapid convergence
-and stable performance without overfitting to world model errors. This
-shows that standard actor-critic methods work well with object-centric
-world models without requiring specialized architectural modifications.
+The policy learning experiment answers this question positively. The
+DreamerV2-style actor-critic successfully learned optimal policies entirely
+from 7-step imagined rollouts. It achieved rapid convergence and stable
+performance without overfitting to \worldmodel{} errors. This shows that standard
+actor-critic methods work well with object-centric \worldmodel{}s without
+requiring specialized architectural modifications.
 
-\textbf{RQ3: Does the object-centric inductive bias in world models improve
+\textbf{RQ3: Does the object-centric inductive bias in \worldmodel{}s improve
 	robustness to changes in the environment?}
 
 The pixel inversion experiment (Section \ref{sec:robustness}) addresses this
@@ -1122,88 +1127,91 @@ the limitations of our approach.
 
 The object-centric approach shows significant advantages across prediction
 accuracy, sample efficiency, and robustness. The 85\% reduction in prediction
-error can be because of several interrelated factors. First, we have reduced feature size
-(12 features per frame versus 12,288 pixels). Second, the inductive bias aligns with
-Pong's fundamentally object-based dynamics. Third, we eliminate the reconstruction
-burden that is required by pixel-based decoders. Also, we have continuous-state dynamics where
-small prediction errors correspond to small positional offsets with limited
-downstream consequences. This is different from discrete-state games where binary
-prediction errors fundamentally alter game states.
+error can be because of several interrelated factors. First, we have reduced
+feature size (12 features per frame versus 12,288 pixels). Second, the
+inductive bias aligns with Pong's fundamentally object-based dynamics. Third,
+we eliminate the reconstruction burden that is required by pixel-based
+decoders. Also, we have continuous-state dynamics where small prediction errors
+correspond to small positional offsets with limited downstream consequences.
+This is different from discrete-state games where binary prediction errors
+fundamentally alter game states.
 
 The order-of-magnitude improvement in sample efficiency (100k-200k versus 1-2M
-steps) comes from multiple mechanisms. First, we have superior world model accuracy which enables
-higher-quality simulated experiences. Second, the compact 48-dimensional state
-representation reduces function approximation complexity. Third, semantic feature
-availability allows immediate leverage without extensive exploration. Also, we have
-simplified credit assignment through transparent causal chains from actions to
-outcomes.
+steps) comes from multiple mechanisms. First, we have superior \worldmodel{}
+accuracy which enables higher-quality simulated experiences. Second, the
+compact 48-dimensional state representation reduces function approximation
+complexity. Third, semantic feature availability allows immediate leverage
+without extensive exploration. Also, we have simplified credit assignment
+through transparent causal chains from actions to outcomes.
 
 The pixel inversion experiment revealed critical brittleness in pixel-based
 representations. DreamerV2's complete collapse (from +19 to -21) with
 consistent failure across all episodes shows systematic misperception. The
 agent relies on specific color patterns and brightness values that reverse
 under inversion. The latent representation optimized for reconstruction does
-not encourage invariance to color transformations. It encodes brightness and RGB
-values even though they are irrelevant to game semantics. This shows a broader
-challenge. Pixel-based agents may achieve high performance on specific visual
-instantiations while failing to generalize to semantically equivalent variants.
-Object-centric approaches achieve robustness by construction through symbolic
-representations that are invariant to visual styling.
+not encourage invariance to color transformations. It encodes brightness and
+RGB values even though they are irrelevant to game semantics. This shows a
+broader challenge. Pixel-based agents may achieve high performance on specific
+visual instantiations while failing to generalize to semantically equivalent
+variants. Object-centric approaches achieve robustness by construction through
+symbolic representations that are invariant to visual styling.
 
 \section{Technical Insights and Design Choices}
 \label{sec:technical_insights}
 
-Key design decisions include several things. First, we use a feedforward deep residual MLP architecture with
-frame stacking for temporal context (4 consecutive frames enable velocity
-inference from positional differences). Second, we use single-frame prediction with frame
-shifting to reduce output complexity. Third, we use feature-specific loss weighting
-that emphasizes ball position and velocity (weights 10.0 and 5.0 versus 1.0 for
-other features). This proved essential for accurate dynamics learning.
+Key design decisions include several things. First, we use a feedforward deep
+residual MLP architecture with frame stacking for temporal context (4
+consecutive frames enable velocity inference from positional differences).
+Second, we use single-frame prediction with frame shifting to reduce output
+complexity. Third, we use feature-specific loss weighting that emphasizes ball
+position and velocity (weights 10.0 and 5.0 versus 1.0 for other features).
+This proved essential for accurate dynamics learning.
 
 A significant challenge was reward prediction within imagined rollouts. Score
 prediction proved unreliable because of extremely imbalanced targets (mostly 0
 changes, rare ±1 at specific moments). We implemented a handcrafted geometric
 reward function based on predicted ball position and paddle alignment. This
 provides smooth learnable signal that correlates with actual reward structure.
-This trades generality for reliability but shows the need for future work
-on learned reward models.
+This trades generality for reliability but shows the need for future work on
+learned reward models.
 
-Training stability depended critically on several things. First, we use feature-wise normalization to handle
-vastly different scales across position, dimension, and velocity features. Second, we use
-advantage normalization for policy gradient stability. Third, we carefully select the imagination
-horizon (7-step balances temporal context against error
-accumulation). The JAX implementation with JIT compilation and vectorization
-provided substantial computational benefits. This is through parallel rollout generation
-across 30,000 initial states and efficient scan-based lambda-return
-computation. Compact 48-dimensional representations make single-GPU training
-feasible compared to memory-intensive pixel-based convolutional architectures.
+Training stability depended critically on several things. First, we use
+feature-wise normalization to handle vastly different scales across position,
+dimension, and velocity features. Second, we use advantage normalization for
+policy gradient stability. Third, we carefully select the imagination horizon
+(7-step balances temporal context against error accumulation). The JAX
+implementation with JIT compilation and vectorization provided substantial
+computational benefits. This is through parallel rollout generation across
+30,000 initial states and efficient scan-based lambda-return computation.
+Compact 48-dimensional representations make single-GPU training feasible
+compared to memory-intensive pixel-based convolutional architectures.
 
 \section{Limitations and Constraints}
 \label{sec:limitations}
 
 Several limitations constrain generalizability. All experiments were conducted
-exclusively in Pong, which is a relatively simple domain with limited object types (2
-paddles, 1 ball), simple physics, and small state space. Generalization to more
-complex Atari games (Breakout with many bricks, Seaquest with multiple fish
-types) or domains with stochastic elements, partial observability, and complex
-multi-object interactions remains uncertain. Pong's continuous dynamics may be
-particularly favorable for object-centric prediction. Games with discrete
-object appearances (spawning, destruction) may experience larger prediction
-errors with significant downstream consequences. Games like Seaquest in
-JAXAtari represent object appearances by choosing some values to not be Zero.
-This means that the difference between an object being present or not is just a
-matter of a single bit in the representation. This makes it challenging to predict
-accurately and especially leads to the same error in case of a misprediction
-as the object being moved a single pixel left or right which is clearly not an
-error of the same magnitude.
+exclusively in Pong, which is a relatively simple domain with limited object
+types (2 paddles, 1 ball), simple physics, and small state space.
+Generalization to more complex Atari games (Breakout with many bricks, Seaquest
+with multiple fish types) or domains with stochastic elements, partial
+observability, and complex multi-object interactions remains uncertain. Pong's
+continuous dynamics may be particularly favorable for object-centric
+prediction. Games with discrete object appearances (spawning, destruction) may
+experience larger prediction errors with significant downstream consequences.
+Games like Seaquest in JAXAtari represent object appearances by choosing some
+values to not be Zero. This means that the difference between an object being
+present or not is just a matter of a single bit in the representation. This
+makes it challenging to predict accurately and especially leads to the same
+error in case of a misprediction as the object being moved a single pixel left
+or right which is clearly not an error of the same magnitude.
 
-The 7-step imagination horizon is a short planning window. It constrains
-the approach to environments where limited temporal context suffices. Many RL
-tasks benefit from long-term planning over tens or hundreds of steps. This requires
+The 7-step imagination horizon is a short planning window. It constrains the
+approach to environments where limited temporal context suffices. Many RL tasks
+benefit from long-term planning over tens or hundreds of steps. This requires
 future work on learned error correction, probabilistic prediction with
-uncertainty quantification, or hierarchical world models. This is not a
+uncertainty quantification, or hierarchical \worldmodel{}s. This is not a
 limitation of the object-centric approach per se but rather of the current
-implementation as especially the use of a worldmodel that uses an
+implementation as especially the use of a \worldmodel{} that uses an
 autoregressive approach.
 
 The approach fundamentally depends on reliable object extraction. JAXAtari
@@ -1228,13 +1236,13 @@ particularly valuable when (1) reliable object extraction is available, (2)
 dynamics are primarily determined by object interactions, (3) objects have
 continuous state properties, and (4) sample efficiency is critical.
 
-The object-centric approach offers interpretability advantages. World model
+The object-centric approach offers interpretability advantages. \worldmodel{}
 predictions are directly interpretable as object position and velocity
-forecasts. This enables human verification. Actor decisions conditioned on explicit
-object states facilitate analysis of which features influence action selection.
-During development, transparency simplified debugging by making prediction
-errors and policy failures immediately visible. This accelerates the development
-cycle.
+forecasts. This enables human verification. Actor decisions conditioned on
+explicit object states facilitate analysis of which features influence action
+selection. During development, transparency simplified debugging by making
+prediction errors and policy failures immediately visible. This accelerates the
+development cycle.
 
 Important open questions concern scalability to complex domains. Pong contains
 only 3 objects. Games like Breakout (dozens of bricks) or Seaquest (multiple
@@ -1251,31 +1259,31 @@ highlights important directions for future research.
 This thesis investigated the integration of object-centric representations with
 model-based reinforcement learning. It shows substantial advantages in
 prediction accuracy, sample efficiency, and robustness compared to pixel-based
-approaches. Through experiments in the Pong environment, we
-established that object-centric world models enable dramatically faster policy
-learning while maintaining comparable final performance to state-of-the-art
-pixel-based methods.
+approaches. Through experiments in the Pong environment, we established that
+object-centric \worldmodel{}s enable dramatically faster policy learning while
+maintaining comparable final performance to state-of-the-art pixel-based
+methods.
 
-We developed a feedforward deep residual MLP architecture that operates directly on
-symbolic object states extracted from JAXAtari. It incorporates frame stacking
-for temporal context and feature-specific loss weighting. The DreamerV2-style
-actor-critic successfully adapted to object-centric world models. It learns
-entirely from simulated rollouts and demonstrates compatibility with modern
-model-based RL algorithms. We did comprehensive experiments comparing
-against DreamerV2. This provided quantitative evidence across prediction accuracy,
-sample efficiency, and robustness dimensions.
+We developed a feedforward deep residual MLP architecture that operates
+directly on symbolic object states extracted from JAXAtari. It incorporates
+frame stacking for temporal context and feature-specific loss weighting. The
+DreamerV2-style actor-critic successfully adapted to object-centric \worldmodel{}s.
+It learns entirely from simulated rollouts and demonstrates
+compatibility with modern model-based RL algorithms. We did comprehensive
+experiments comparing against DreamerV2. This provided quantitative evidence
+across prediction accuracy, sample efficiency, and robustness dimensions.
 
-The object-centric world model achieved 85\% reduction in mean squared error
+The object-centric \worldmodel{} achieved 85\% reduction in mean squared error
 compared to DreamerV2 across prediction horizons from 1 to 20 steps. It has
 single-step MSE of 2-6 versus 45-60 for the pixel-based baseline. The
 object-centric approach reached high episode returns within 100,000-200,000
-environment steps compared to DreamerV2's 1-2 million steps. This is an
-order of magnitude improvement in sample efficiency. The actor-critic
-successfully learned optimal policies entirely from 7-step imagined rollouts
-with rapid convergence and stable performance. The pixel inversion experiment
-revealed critical brittleness in pixel-based representations. DreamerV2's
-performance collapsed from +19 to -21 mean return. This shows reliance on
-superficial visual features rather than robust object-level understanding.
+environment steps compared to DreamerV2's 1-2 million steps. This is an order
+of magnitude improvement in sample efficiency. The actor-critic successfully
+learned optimal policies entirely from 7-step imagined rollouts with rapid
+convergence and stable performance. The pixel inversion experiment revealed
+critical brittleness in pixel-based representations. DreamerV2's performance
+collapsed from +19 to -21 mean return. This shows reliance on superficial
+visual features rather than robust object-level understanding.
 
 These results show that representation matters profoundly for learning
 efficiency and robustness. The magnitude of observed differences (85\% error
@@ -1287,22 +1295,22 @@ substantial benefits. The order-of-magnitude improvement suggests that
 combining object-centric representations with model-based methods offers a
 promising path toward practical sample efficiency in domains where object
 extraction is feasible. Object-centric representations provide transparency
-that facilitates debugging, verification, and building trust in learned systems.
+that facilitates debugging, verification, and building trust in learned
+systems.
 
 Several limitations constrain generalizability. Evaluation on Pong alone leaves
 uncertain whether advantages persist in more complex environments with many
 objects, stochastic dynamics, or partial observability. The 7-step imagination
-horizon is a short planning window. Also, reliance on JAXAtari for
-ground-truth object extraction sidesteps the challenge of learning object
-representations from pixels. Future work should expand to complex Atari games
-(Breakout, Seaquest, Space Invaders) that require graph neural networks or
-attention mechanisms for variable numbers of objects. Investigating
-unsupervised object discovery methods (slot attention, MONet),
-uncertainty-aware prediction, hierarchical world models, and learned reward
-predictors would address key limitations. Testing robustness to dynamic
-perturbations (physics parameters), novel object configurations, and transfer
-learning across related environments would reveal compositional understanding
-and reusable knowledge.
+horizon is a short planning window. Also, reliance on JAXAtari for ground-truth
+object extraction sidesteps the challenge of learning object representations
+from pixels. Future work should expand to complex Atari games (Breakout,
+Seaquest, Space Invaders) that require graph neural networks or attention
+mechanisms for variable numbers of objects. Investigating unsupervised object
+discovery methods (slot attention, MONet), uncertainty-aware prediction,
+hierarchical \worldmodel{}s, and learned reward predictors would address key
+limitations. Testing robustness to dynamic perturbations (physics parameters),
+novel object configurations, and transfer learning across related environments
+would reveal compositional understanding and reusable knowledge.
 
 This thesis shows that integrating object-centric representations with
 model-based reinforcement learning offers a compelling path toward more
@@ -1310,14 +1318,14 @@ accurate, sample-efficient, and interpretable learning systems. When task
 structure is available or extractable, leveraging that structure through
 appropriate inductive biases yields substantial benefits. The challenge lies in
 expanding these benefits beyond simple, fully observable domains to complex,
-partially observable, stochastic environments that are characteristic of real-world
-applications. This requires advances in unsupervised object discovery, long-horizon
-prediction, and robust generalization. By combining the sample efficiency of
-model-based methods with the interpretability and inductive bias of
-object-centric representations, this approach addresses two critical challenges
-in modern reinforcement learning. It contributes toward making RL systems more
-practical, trustworthy, and applicable to real-world problems where both
-efficiency and interpretability are essential.
+partially observable, stochastic environments that are characteristic of
+real-world applications. This requires advances in unsupervised object
+discovery, long-horizon prediction, and robust generalization. By combining the
+sample efficiency of model-based methods with the interpretability and
+inductive bias of object-centric representations, this approach addresses two
+critical challenges in modern reinforcement learning. It contributes toward
+making RL systems more practical, trustworthy, and applicable to real-world
+problems where both efficiency and interpretability are essential.
 
 \printbibliography[title={References}]
 
