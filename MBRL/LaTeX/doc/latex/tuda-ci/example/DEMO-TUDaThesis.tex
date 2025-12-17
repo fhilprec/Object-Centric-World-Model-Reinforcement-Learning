@@ -182,13 +182,13 @@ of object centric states provided by the a framework called JAXAtari
 environment given the current state and action. An actor-critic framework based
 on the DreamerV2 \cite{hafner2020dream} architecture is integrated with the
 \worldmodel{} to learn policies from imagined rollouts. The training pipeline
-involves alternating between updating the \worldmodel{} and optimizing the policy
-based on simulated experiences. The performance of the proposed approach will
-be evaluated in the Pong environment from the Atari benchmark suite, comparing
-it against pixel-based baselines and assessing its sample efficiency and
-robustness. Combining both appraoches thus offers the possibility of complex
-planning using object centric states. Although out of the scope of this thesis
-one could imagine interpretable planned stategies describing how certain
+involves alternating between updating the \worldmodel{} and optimizing the
+policy based on simulated experiences. The performance of the proposed approach
+will be evaluated in the Pong environment from the Atari benchmark suite,
+comparing it against pixel-based baselines and assessing its sample efficiency
+and robustness. Combining both appraoches thus offers the possibility of
+complex planning using object centric states. Although out of the scope of this
+thesis one could imagine interpretable planned stategies describing how certain
 objects influence decisions of the agent. This is usually quite hard with
 existing model based approaches since they usually rely on latent space which
 is then used to make predictions resulting in the loss of human
@@ -197,10 +197,11 @@ interpretability.
 The remainder of this thesis is structured as follows: Chapter 2 provides
 background information on reinforcement learning, model based approaches, and
 object-centric representations. Chapter 3 details the methodology, including
-the \worldmodel{} architecture, actor-critic integration, and training pipeline.
-Chapter 4 presents the experimental setup, results, and analysis. Chapter 5
-discusses the findings, challenges, and implications of the results. Finally,
-Chapter 6 concludes the thesis and outlines directions for future work.
+the \worldmodel{} architecture, actor-critic integration, and training
+pipeline. Chapter 4 presents the experimental setup, results, and analysis.
+Chapter 5 discusses the findings, challenges, and implications of the results.
+Finally, Chapter 6 concludes the thesis and outlines directions for future
+work.
 
 \chapter{Background and Related Work}
 \label{chap:background}
@@ -299,17 +300,17 @@ properly trained the agent can learn entirely within the \worldmodel{} making
 additional sampling unnecessary. Although depending on game complexity the
 initial sampling which is usually done by a random policy might not see diverse
 enough states. This is for most Atari Games not an issue but for more complex
-environment it can be important to retrain the \worldmodel{} with new experience
-that is sampled by the newly trained agent in the real
-environment \cite{janner2019trust,sutton1991dyna}. Moreover there are
-approaches that use explicit planning strategies that hugely benefit
-interpretability. Using the \worldmodel{} the agent can make guesses what might
-happen in the future and explicitly reason why it decides for a certain action
+environment it can be important to retrain the \worldmodel{} with new
+experience that is sampled by the newly trained agent in the real environment
+\cite{janner2019trust,sutton1991dyna}. Moreover there are approaches that use
+explicit planning strategies that hugely benefit interpretability. Using the
+\worldmodel{} the agent can make guesses what might happen in the future and
+explicitly reason why it decides for a certain action
 \cite{schrittwieser2020mastering,greydanus2018visualizing}.
 
 But training a well designed and stable model can create several challenges for
-example the \worldmodel{} can introduce a bias into the agent which does not hold
-in the true environment. The agent can learn to exploit errors in the
+example the \worldmodel{} can introduce a bias into the agent which does not
+hold in the true environment. The agent can learn to exploit errors in the
 \worldmodel{} to artificially boost its score but then performs much worse
 during inference \cite{talvitie2017self,lambert2020learning}.
 
@@ -321,9 +322,9 @@ V2, V3) that use a \worldmodel{} together with actor-critic methods. The main
 idea is to learn a compact latent space where the agent can imagine rollouts
 and train its policy without always interacting with the real environment.
 Dreamer builds on ideas from PlaNet
-\cite{hafner2019learninglatentdynamicsplanning} and models from  \cite{ha2018world}, which first used latent
-dynamics, but Dreamer adds actor-critic learning and works better for Atari
-games.
+\cite{hafner2019learninglatentdynamicsplanning} and models from
+\cite{ha2018world}, which first used latent dynamics, but Dreamer adds
+actor-critic learning and works better for Atari games.
 
 \begin{figure}[ht]
 	\centering
@@ -335,18 +336,19 @@ games.
 DreamerV2 improves DreamerV1 by making it more stable and able to handle
 discrete actions, which is important for Atari. DreamerV3 tries to make the
 method work for many different tasks without changing hyperparameters. There
-are different ways to train a \worldmodel{}. You can predict future observations
-directly or predict latent states. In Dreamers case as shown in Figure
-\ref{fig:dreamer_flow} the \worldmodel{} predicts latent states.
+are different ways to train a \worldmodel{}. You can predict future
+observations directly or predict latent states. In Dreamers case as shown in
+Figure \ref{fig:dreamer_flow} the \worldmodel{} predicts latent states.
 
-DreamerV2 builds upon the \worldmodel{} with an actor-critic framework. The actor
-is responsible for selecting actions based on the current latent state, while
-the critic evaluates the chosen actions by estimating their value. Central to
-DreamerV2 is the use of the $\lambda$-return, which provides a balance between
-bias and variance since using $\lambda=0$ leads to high bias and low variance,
-while $\lambda=1$ leads to low bias and high variance. Approaching TD(0) and
-Monte Carlo respectively. The following sections explain in detail how the
-$\lambda$-target is computed and how it is used to define the actor and critic.
+DreamerV2 builds upon the \worldmodel{} with an actor-critic framework. The
+actor is responsible for selecting actions based on the current latent state,
+while the critic evaluates the chosen actions by estimating their value.
+Central to DreamerV2 is the use of the $\lambda$-return, which provides a
+balance between bias and variance since using $\lambda=0$ leads to high bias
+and low variance, while $\lambda=1$ leads to low bias and high variance.
+Approaching TD(0) and Monte Carlo respectively. The following sections explain
+in detail how the $\lambda$-target is computed and how it is used to define the
+actor and critic.
 
 The $\lambda$-target is defined recursively as:
 \begin{equation}
@@ -420,8 +422,9 @@ where the objects states are extracted from RAM \cite{delfosse2023ocatari} or
 given directly by the environment itself like in JAXAtari.
 
 This object extraction mimics human perception, which naturally segments scenes
-into distinct entities and focuses on their interactions \cite{spelke1990principles}.
-Therefore object centricity provides several advantages over pixel based methods.
+into distinct entities and focuses on their interactions
+\cite{spelke1990principles}. Therefore object centricity provides several
+advantages over pixel based methods.
 
 \textbf{Compositional Understanding:} Object-centric representations naturally excel at treating input features as compositions of distinct entities.
 This compositionality allows agents to reason about individual objects and their interactions by for example allowing the agent
@@ -433,7 +436,7 @@ understands the concept of a "ball" an an abstract object can use this knowledge
 \textbf{Enhanced Interpretability:} Object-centric representations provide naturally a better interpretability than pixel based representations since the agent can reason better that it perceives things as objects rather than "random" pixels.
 
 \textbf{Sample Efficiency:} The structured nature of object-centric representations often leads to more sample-efficient learning. By working with compact, meaningful features rather than high-dimensional
-pixel data, agents can learn policies with fewer rollouts. This is possible because the object space is already some kind of latent space which is usually the way things work \cite{locatello2020object}.
+pixel data, agents can learn policies with fewer rollouts. This is possible because the object space is already a kind of latent space. \cite{locatello2020object}.
 
 A significant development in this field is the introduction of OCAtari
 (Object-Centric Atari) by Delfosse et al. \cite{delfosse2023ocatari}. OCAtari
@@ -473,47 +476,17 @@ the relationships and interactions between them. This capability is crucial for
 complex decision-making in multi-object environments where the optimal policy
 depends on understanding how different entities influence each other.
 
-Relational reasoning in reinforcement learning encompasses several key aspects:
-
-\textbf{Spatial Relationships:} Understanding the relative positions of objects and how spatial configurations affect optimal actions. For example, in Pong, the relationship between the paddle position
-and ball trajectory determines the appropriate movement strategy.
-
-\textbf{Temporal Relationships:} Tracking how object relationships evolve over time and predicting future interactions. This temporal aspect is particularly important for planning and anticipatory behavior.
-
-\textbf{Causality:} \cite{scholkopf2021toward,dasgupta2019causal} Recognizing cause-and-effect relationships between actions and object state changes. This understanding enables more sophisticated planning and can help avoid unintended consequences.
-
-Object-centric model based RL combines the abstraction of object
-representations with state prediction. By using structured object-centric
-states, agents can reason about state transitions in a more robust and
-interpretable way compared to pixel-based representations. Pixel based
-representation can thus suffer from several issues namely:
-
-\begin{itemize}
-	\item \textbf{High Dimensionality:} Pixel based inputs are by nature more prone to having more dimensions, making them harder to process and requiring more computational resources.
-	\item \textbf{Poor Generalization:} Agents trained on pixel data may struggle to generalize across different environments or object appearances, as they rely heavily on specific visual features and are very prone to slight changes that would not affect human performances but greatly affects the agent \cite{zhang2020learning,stone2021distracting}.
-	\item \textbf{Lack of Semantic Understanding:} Pixel representations do not inherently capture the relationships between objects, limiting the agent's ability to reason about their interactions.
-	\item \textbf{Sample Inefficiency:} Learning from high-dimensional pixel data often requires more samples to achieve comparable performance to object-centric approaches \cite{watters2019cobra}.
-	\item \textbf{Sensitivity to Noise and Distractors:} Pixel-based methods sometimes focus on irrelevant visual details of the environment which get abstracted away when using object-centric approaches.
-\end{itemize}
-
-The integration of relational reasoning with model based approaches offers
-significant potential for improving agent performance. By incorporating
-relational structure into \worldmodel{}s, agents can make more accurate
-predictions about future states and plan more effectively. This integration
-forms a core component of our proposed approach, where object-centric \worldmodel{}s
-explicitly encode relational information to enhance both prediction
-accuracy and policy learning.
-
 \chapter{Methodology}
 \label{chap:methodology}
 
-In this chapther we explore the actual implementation of the \worldmodel{} along
-with the actor critic which learns in the imagined rollouts generated by the
-\worldmodel{}. The implementation is based on the DreamerV2 architecture
+In this chapther we explore the actual implementation of the \worldmodel{}
+along with the actor critic which learns in the imagined rollouts generated by
+the \worldmodel{}. The implementation is based on the DreamerV2 architecture
 \cite{hafner2020dream} described in Section \ref{sec:dreamer_architecture}.
-
-\section{\worldmodel{} Architecture}
-\label{sec:world_model_arch}
+Moreover we chose the game pong from the Atari benchmark suite to exemplify our
+approach since it is a well understood environment and not too complex to
+train on. 
+\section{\worldmodel{} Architecture} \label{sec:world_model_arch}
 
 Unlike DreamerV2 which learns on images we leverage the fact that we already
 have object centric states. So instead of a 84x84 Pixel image as input we have
@@ -539,12 +512,12 @@ between frames.
 Using a simple feedwordward network has several advantages. First, they are
 significantly faster to train and evaluate than recurrent models, since they
 have no sequential dependencies that require iterative computation. Also using
-them during training becomes easier since feeding them a single frame should be
-enough which allows for better parallelization. Second, the structured nature
-of object-centric states (explicit positions, velocities) means the model does
-not need to learn temporal abstractions from the scratch. The main disadvantage
-of feedforward models is that they lack temporal context which is solved by the
-frame stacking.
+them during training becomes easier since feeding them a single frame is sufficient
+which allows for better parallelization. Second, the structured nature
+of object-centric states (explicit positions) means the model does
+not need to learn temporal abstractions from scratch. The main disadvantage
+of feedforward models is that they lack temporal context which is solved to some degree
+by the frame stacking.
 
 Our implementation uses a 4-layer residual architecture that predicts
 frame-shifted states meaning the model only predicts a single frame meaning 12
@@ -780,14 +753,14 @@ which improves the gradient stability.
 \section{Training Pipeline}
 \label{sec:training_pipeline}
 
-Our complete training procedure alternates between the \worldmodel{} training and
-the policy optimization, with periodic retraining of the \worldmodel{} using
-fresh experience collected by the improving policy. This cyclic approach is in
-many instances of model based RL incredible important since the \worldmodel{}
-needs proper and diverse data to learn from to also predict later stages of the
-game accurately to avoid out of distribution states. This is less critical in
-Pong since the state space is relatively small, but in more complex games this
-becomes essential.
+Our complete training procedure alternates between the \worldmodel{} training
+and the policy optimization, with periodic retraining of the \worldmodel{}
+using fresh experience collected by the improving policy. This cyclic approach
+is in many instances of model based RL incredible important since the
+\worldmodel{} needs proper and diverse data to learn from to also predict later
+stages of the game accurately to avoid out of distribution states. This is less
+critical in Pong since the state space is relatively small, but in more complex
+games this becomes essential.
 
 \begin{figure}[ht]
 	\centering
@@ -796,8 +769,7 @@ becomes essential.
 	\label{fig:trainingschedule}
 \end{figure}
 
-\subsection{\worldmodel{} Training and Experience Collection}
-\label{subsec:world_model_training}
+\subsection{\worldmodel{} Training and Experience Collection} \label{subsec:world_model_training}
 
 \begin{algorithm}
 	\caption{Complete Training Pipeline}
@@ -853,8 +825,8 @@ normalization statistics.
 \textbf{Experience Buffer Management:} The experience buffer maintains a sliding window of recent transitions. In the real-environment baseline mode, we do not update the buffer after the initial collection. In the model-based mode, we periodically collect fresh data using the current policy, then retrain the \worldmodel{} every 10 policy optimization iterations.
 
 When retraining, we compeletely resample transitions from the updated buffer to
-ensure the \worldmodel{} learns from the latest distribution of states visited by
-the improving policy.
+ensure the \worldmodel{} learns from the latest distribution of states visited
+by the improving policy.
 
 \subsection{Policy Optimization}
 \label{subsec:policy_optimization}
@@ -913,8 +885,7 @@ Because of computational constraints, we report single-seed results for Dreamer
 and three seeds for the object-centric approach. The trends are consistent
 across seeds.
 
-\section{\worldmodel{} Prediction Accuracy}
-\label{sec:world_model_perf}
+\section{\worldmodel{} Prediction Accuracy} \label{sec:world_model_perf}
 
 We compare prediction accuracy of object-centric and pixel-based \worldmodel{}s
 using a standardized protocol. Both models do 20-step autoregressive rollouts
@@ -986,8 +957,9 @@ The successful policy learning from object-centric imagined rollouts shows that
 DreamerV2-style actor-critic can learn optimal policies from simulated
 experiences. The rapid learning shows that imagined rollouts provide meaningful
 training signal. The stable performance suggests the actor-critic avoids
-overfitting to \worldmodel{} errors. The 7-step imagination horizon is sufficient
-for effective policy learning with appropriate temporal credit assignment.
+overfitting to \worldmodel{} errors. The 7-step imagination horizon is
+sufficient for effective policy learning with appropriate temporal credit
+assignment.
 
 The efficiency gains can be because of superior prediction accuracy (Section
 \ref{sec:world_model_perf}), compact 48-dimensional state representation that
@@ -1074,9 +1046,9 @@ reduced data requirements.
 The policy learning experiment answers this question positively. The
 DreamerV2-style actor-critic successfully learned optimal policies entirely
 from 7-step imagined rollouts. It achieved rapid convergence and stable
-performance without overfitting to \worldmodel{} errors. This shows that standard
-actor-critic methods work well with object-centric \worldmodel{}s without
-requiring specialized architectural modifications.
+performance without overfitting to \worldmodel{} errors. This shows that
+standard actor-critic methods work well with object-centric \worldmodel{}s
+without requiring specialized architectural modifications.
 
 \textbf{RQ3: Does the object-centric inductive bias in \worldmodel{}s improve
 	robustness to changes in the environment?}
@@ -1267,8 +1239,8 @@ methods.
 We developed a feedforward deep residual MLP architecture that operates
 directly on symbolic object states extracted from JAXAtari. It incorporates
 frame stacking for temporal context and feature-specific loss weighting. The
-DreamerV2-style actor-critic successfully adapted to object-centric \worldmodel{}s.
-It learns entirely from simulated rollouts and demonstrates
+DreamerV2-style actor-critic successfully adapted to object-centric
+\worldmodel{}s. It learns entirely from simulated rollouts and demonstrates
 compatibility with modern model-based RL algorithms. We did comprehensive
 experiments comparing against DreamerV2. This provided quantitative evidence
 across prediction accuracy, sample efficiency, and robustness dimensions.
