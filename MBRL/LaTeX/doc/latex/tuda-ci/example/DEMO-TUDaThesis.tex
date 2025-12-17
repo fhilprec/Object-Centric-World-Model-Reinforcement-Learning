@@ -68,6 +68,7 @@
 \usepackage{xcolor}
 \usepackage{graphicx}
 \usepackage{subcaption}
+\usepackage{hyperref}
 
 %%%%%%%%%%%%%%%%%%%
 % Custom macros
@@ -485,7 +486,8 @@ the \worldmodel{}. The implementation is based on the DreamerV2 architecture
 \cite{hafner2020dream} described in Section \ref{sec:dreamer_architecture}.
 Moreover we chose the game pong from the Atari benchmark suite to exemplify our
 approach since it is a well understood environment and not too complex to
-train on. 
+train on. The complete implementation including all training scripts and
+evaluation tools is publicly available \cite{ocwmrl2025}. 
 \section{\worldmodel{} Architecture} \label{sec:world_model_arch}
 
 Unlike DreamerV2 which learns on images we leverage the fact that we already
@@ -1306,9 +1308,11 @@ problems where both efficiency and interpretability are essential.
 \chapter{Implementation Details}
 \label{app:implementation}
 
-\section{Code Structure and Organization}
-\label{app:code_structure}
-Provide an overview of the project's codebase, including the main modules, their purposes, and how they interact.
+The complete implementation of this thesis, including all source code, training
+scripts, evaluation tools, and experiment configurations, is publicly available
+on GitHub at \url{https://github.com/fhilprec/Object-Centric-World-Model-Reinforcement-Learning}
+\cite{ocwmrl2025}. The repository includes shell scripts for running the experiments presented
+later in this thesis.
 
 \section{Hyperparameter Sensitivity Analysis}
 \label{app:hyperparameter_analysis}
