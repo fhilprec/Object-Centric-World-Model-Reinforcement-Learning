@@ -492,7 +492,7 @@ evaluation tools is publicly available \cite{ocwmrl2025}.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.9\textwidth]{images/Pong.drawio.png}
+	\includegraphics[width=0.9\textwidth]{images/Pong.jpg}
 	\caption{Overview of the Pong \worldmodel{} architecture. The model takes in the current object-centric state and action, processes them through a deep residual MLP, and predicts the next object-centric state.}
 	\label{fig:pong_architecture}
 \end{figure}
@@ -1162,6 +1162,16 @@ provides smooth learnable signal that correlates with actual reward structure.
 This trades generality for reliability but shows the need for future work on
 learned reward models.
 
+The necessity for a carefully handcrafted reward also raises some discussions.
+A possible reason why DreamerV2 may suceed to directly predict the rewards may be that the 
+latent space representation is more flexible and contains more information that can be optimized
+by the model to accurateley predict the rewards. That lies in harsh contrast to our object centric representation
+which is fixed and may not contain all the necessary information to accurately predict the rewards. 
+Furthermore object centric representations may discard some information that is necessary to predict the rewards
+accurately. This highlights a trade-off between using fixed object centric representations that are
+excellent for dynamics modeling but may lack the flexibility for reward prediction versus learned latent representations
+that can adapt to the task at hand. This suggests future work on pinpointing exactly why there are such differences.
+
 Training stability depended critically on several things. First, we use
 feature-wise normalization to handle vastly different scales across position,
 dimension, and velocity features. Second, we use advantage normalization for
@@ -1178,12 +1188,20 @@ compared to memory-intensive pixel-based convolutional architectures.
 
 The 7-step imagination horizon is a short planning window. It constrains the
 approach to environments where limited temporal context suffices. Many RL tasks
-benefit from long-term planning over tens or hundreds of steps. This requires
-future work on learned error correction, probabilistic prediction with
-uncertainty quantification, or hierarchical \worldmodel{}s. This is not a
-limitation of the object-centric approach per se but rather of the current
-implementation as especially the use of a \worldmodel{} that uses an
-autoregressive approach.
+benefit from long-term planning over tens or hundreds of steps. This is notably
+shorter than DreamerV2's typical 15-step horizon for Atari games. Several factors may contribute 
+to this difference. Our
+model exhibits some instability in certain game states, particularly ball behavior
+near edges and during respawn events. DreamerV2's RSSM architecture includes a
+mechanism where predicted latent states are refined by encoding actual observations
+and comparing them via KL divergence, potentially providing implicit error correction
+that our purely autoregressive approach does not provide. However, it is worth noting that
+despite these limitations and the shorter horizon, our approach still achieves lower prediction errors overall, 
+suggesting that the 7-step horizon may be sufficient for this domain. Future work on learned error
+correction or a more probabilistic predictions could enable longer horizons.
+This is not a limitation of the object-centric approach per se but rather of the current 
+implementation as especially
+the use of a \worldmodel{} that uses an autoregressive approach.
 
 The approach fundamentally depends on reliable object extraction. JAXAtari
 provides this through direct RAM access. But many real-world domains lack
@@ -1192,6 +1210,13 @@ attention, MONet) that introduce additional complexity and potential failure
 modes. This trades generality for performance. Pixel-based methods apply to any
 visually observed environment while object-centric approaches achieve superior
 performance only in structured domains.
+
+Another limitation is the reliance on handcrafted reward functions for policy
+learning. In contrast to that DreamerV2 successfully learns to predict rewards. This suggests that fixed object-centric representations, while excellent for
+dynnamics modeling may abstract away crucial information for reward prediction.
+Future work should explore why this happens precisely and whether different
+representations or potentially learned object-centric features can avoid that limitation.
+
 
 \section{Broader Implications}
 \label{sec:broader_implications}

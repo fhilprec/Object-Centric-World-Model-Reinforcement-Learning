@@ -35,6 +35,7 @@ MBRL/experiments/experiment3/reward_comparison.png
 MBRL/experiments/experiment3/reward_histogram.png
 mlp_rendered_images/
 MBRL/experiments/experiment1/training_curve.png
+MBRL/LaTeX/doc/latex/tuda-ci/example/DEMO-TUDaThesis.run.xml
 
 MBRL/experiments/experiment2/sequence_pngs_dreamer
 MBRL/experiments/experiment2/sequence_pngs_jax
