@@ -1161,7 +1161,12 @@ This proved essential for accurate dynamics learning.
 	\label{fig:feature_weighting_ablation}
 \end{figure}
 
-To validate the importance of feature weighting, we conducted an ablation study comparing training with and without this design choice (Figure \ref{fig:feature_weighting_ablation}). The results show that while feature weighting is not strictly essential for learning, it does provide benefits during early training. The agent trained without feature weighting exhibits slightly worse initial performance but eventually converges to similar final scores. This suggests that feature weighting helps guide the model to focus on the most critical dynamics (ball trajectory) early in training, accelerating convergence, though the agent can still learn effectively without it.
+To validate the importance of feature weighting, we compared raining with and without
+ this design choice (Figure \ref{fig:feature_weighting_ablation}). The results show that while feature weighting is 
+ not strictly essential for learning, it does provide benefits during early training. The agent trained without 
+ feature weighting shows slightly worse initial performance but eventually converges to similar final scores. 
+ This suggests that feature weighting helps guide the model to focus on the most critical features (ball trajectory) early 
+ in training, accelerating convergence, though the agent can still learn effectively without it.
 
 A significant challenge was reward prediction within imagined rollouts. Score
 prediction proved unreliable because of extremely imbalanced targets (mostly 0
