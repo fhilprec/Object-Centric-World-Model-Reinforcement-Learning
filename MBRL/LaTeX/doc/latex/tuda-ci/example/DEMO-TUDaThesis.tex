@@ -1154,6 +1154,15 @@ complexity. Third, we use feature-specific loss weighting that emphasizes ball
 position and velocity (weights 10.0 and 5.0 versus 1.0 for other features).
 This proved essential for accurate dynamics learning.
 
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.9\textwidth]{images/training_curve_seed_comparison.png}
+	\caption{Comparing training with and without feature weighting. While both approaches eventually converge to similar performance levels, the variant without feature weighting shows slightly worse performance in the initial training phase before reaching comparable final scores.}
+	\label{fig:feature_weighting_ablation}
+\end{figure}
+
+To validate the importance of feature weighting, we conducted an ablation study comparing training with and without this design choice (Figure \ref{fig:feature_weighting_ablation}). The results show that while feature weighting is not strictly essential for learning, it does provide benefits during early training. The agent trained without feature weighting exhibits slightly worse initial performance but eventually converges to similar final scores. This suggests that feature weighting helps guide the model to focus on the most critical dynamics (ball trajectory) early in training, accelerating convergence, though the agent can still learn effectively without it.
+
 A significant challenge was reward prediction within imagined rollouts. Score
 prediction proved unreliable because of extremely imbalanced targets (mostly 0
 changes, rare ±1 at specific moments). We implemented a handcrafted geometric
