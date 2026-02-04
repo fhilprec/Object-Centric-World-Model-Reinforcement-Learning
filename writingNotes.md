@@ -56,7 +56,8 @@ Erwähnen dass LLMs for grammar correction used, paper von raban und jannis habe
 
 
 Tipps:
-Archive Links vielleicht nicht so smart website dafür ist dblp (pink heißt Journal, copy bibtex)
+Archive Links vielleicht nicht so smart website dafür ist dblp (pink heißt Journal, copy bibtex), https://bibtex.lukoianov.com/
+
 mehr auf figures eingehen
 vereinheitliche Schreibweise, worldmodel in Überschriften groß trotzdem
 Anmeldung second reviewer muss gleich sein, 
