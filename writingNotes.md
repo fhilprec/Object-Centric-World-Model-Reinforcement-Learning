@@ -28,6 +28,9 @@ Limitations (unter welchen Contraints ist das war) Horizon Length erklären,
 
 
 
+
+
+
 # 04.02.2026
 * Wann soll ich abgeben?
     * Die Woche?
