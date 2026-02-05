@@ -67,3 +67,9 @@ Anmeldung second reviewer muss gleich sein,
 Raban als third reviewer eintragen
 
 Vielleicht mehr Abgrenzen (bei related work nochmal)
+
+
+
+
+Final Questions:
+What do you think about the formatting of the Ai ACK Part
