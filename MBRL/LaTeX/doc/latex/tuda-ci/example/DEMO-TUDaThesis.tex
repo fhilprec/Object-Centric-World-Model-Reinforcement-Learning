@@ -80,20 +80,20 @@
 
 \Metadata{
 	title=Structured World Understanding: Integrating Object-Centric Learning with Model Based Reinforcement Learning,
-	author=Your Name
+	author=Florian Hilprecht
 }
 
 \title{Structured World Understanding: Integrating Object-Centric Learning with Model Based Reinforcement Learning}
 \subtitle{Master's Thesis: Summer Semester 2025}
-\author[Y. Name]{Your Full Name}
-\studentID{1234567}
-\reviewer{Prof. Dr. Kristian Kersting\\[0.2em]2. Review: Jannis Blüml, Raban Emunds}
+\author[Florian Hilprecht]{Florian Hilprecht}
+\studentID{2797159}
+\reviewer{Prof. Dr. Kristian Kersting\\[0.2em]2. Review: Jannis Blüml \\[0.2em]3. Review: Raban Emunds}
 
 \department{Department of Computer Science}
 \group{Machine Learning Research Group (AI \& ML Lab)}
 
-\submissiondate{24.10.2025}
-\examdate{24.10.2025}
+\submissiondate{11.02.2026}
+\examdate{11.02.2026}
 
 \maketitle
 
@@ -331,7 +331,7 @@ actor-critic learning and works better for Atari games.
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=0.9\textwidth]{images/DreamerFlow.png}
-	\caption{Overview of the DreamerV2 training pipeline. The \worldmodel{} learns to predict future states and rewards, enabling the actor-critic framework to optimize policies using imagined rollouts. Taken from Hafner et al.~\cite{hafner2021mastering}, Fig.~1.}
+	\caption[DreamerV2 training pipeline overview]{Overview of the DreamerV2 training pipeline. The \worldmodel{} learns to predict future states and rewards, enabling the actor-critic framework to optimize policies using imagined rollouts. Taken from Hafner et al.~\cite{hafner2021mastering}, Fig.~1.}
 	\label{fig:dreamer_flow}
 \end{figure}
 
@@ -493,11 +493,11 @@ evaluation tools is publicly available \cite{ocwmrl2025}.
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth]{images/Pong.jpg}
-	\caption{Overview of the Pong \worldmodel{} architecture. The model takes in the current object-centric state and action, processes them through a deep residual MLP, and predicts the next object-centric state.}
+	\caption[Pong World Model architecture]{Overview of the Pong World Model architecture. The model takes in the current object-centric state and action, processes them through a deep residual MLP, and predicts the next object-centric state.}
 	\label{fig:pong_architecture}
 \end{figure}
 
-\section{\worldmodel{} Architecture} \label{sec:world_model_arch}
+\section{World Model Architecture} \label{sec:world_model_arch}
 
 Unlike DreamerV2 which learns on images we leverage the fact that we already
 have object centric states. So instead of a 84 by 84 Pixel image as input we have
@@ -773,11 +773,11 @@ games this becomes essential.
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=0.3\textwidth]{images/trainingschedule.png}
-	\caption{Training schedule showing the alternating phases of \worldmodel{} training and policy optimization.}
+	\caption[Training schedule phases]{Training schedule showing the alternating phases of \worldmodel{} training and policy optimization.}
 	\label{fig:trainingschedule}
 \end{figure}
 
-\subsection{\worldmodel{} Training and Experience Collection} \label{subsec:world_model_training}
+\subsection{World Model Training and Experience Collection} \label{subsec:world_model_training}
 
 \begin{algorithm}
 	\caption{Complete Training Pipeline}
@@ -895,7 +895,7 @@ Because of computational constraints, we report single-seed results for Dreamer
 and three seeds for the object-centric approach. The trends are consistent
 across seeds.
 
-\section{\worldmodel{} Prediction Accuracy} \label{sec:world_model_perf}
+\section{World Model Prediction Accuracy} \label{sec:world_model_perf}
 
 We compare prediction accuracy of object-centric and pixel-based \worldmodel{}s
 using a standardized protocol. Both models do 20-step autoregressive rollouts
@@ -910,7 +910,7 @@ advantages for the object-centric approach across all horizons.
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=0.9\textwidth]{images/model_comparison_plot.png}
-	\caption{\worldmodel{} prediction error comparison over multi-step rollouts. The JAX object-centric \worldmodel{} (orange) exhibits substantially lower MSE compared to DreamerV2 (blue) across all prediction horizons from 1 to 20 steps.}
+	\caption[World model prediction error comparison]{\worldmodel{} prediction error comparison over multi-step rollouts. The JAX object-centric \worldmodel{} (orange) exhibits substantially lower MSE compared to DreamerV2 (blue) across all prediction horizons from 1 to 20 steps.}
 	\label{fig:prediction_comparison}
 \end{figure}
 
@@ -951,7 +951,7 @@ sample efficiency.
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=0.9\textwidth]{images/training_curve.png}
-	\caption{Training progress comparison between object-centric (blue) and DreamerV2 (orange). The object-centric approach achieves high returns (extracted from real rollouts) with an order of magnitude fewer environment interactions.}
+	\caption[Training progress comparison]{Training progress comparison between object-centric (blue) and DreamerV2 (orange). The object-centric approach achieves high returns (extracted from real rollouts) with an order of magnitude fewer environment interactions.}
 	\label{fig:training_comparison}
 \end{figure}
 
@@ -998,7 +998,7 @@ conditions. We collect 20 episodes in each condition without retraining.
 
 \begin{table}[ht]
 	\centering
-	\caption{DreamerV2 performance under normal and inverted visual conditions over 20 evaluation episodes.}
+	\caption[DreamerV2 performance under visual perturbations]{DreamerV2 performance under normal and inverted visual conditions over 20 evaluation episodes.}
 	\label{tab:robustness_results}
 	\begin{tabular}{lcccc}
 		\toprule
@@ -1079,7 +1079,7 @@ with visual styling assuming robust object extraction.
 
 \begin{table}[ht]
 	\centering
-	\caption{Summary of key experimental results mapped to research questions.}
+	\caption[Summary of experimental results]{Summary of key experimental results mapped to research questions.}
 	\label{tab:summary_results}
 	\begin{tabular}{lcc}
 		\toprule
@@ -1157,7 +1157,7 @@ This proved essential for accurate dynamics learning.
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=0.9\textwidth]{images/training_curve_seed_comparison.png}
-	\caption{Comparing training with and without feature weighting. While both approaches eventually converge to similar performance levels, the variant without feature weighting shows slightly worse performance in the initial training phase before reaching comparable final scores.}
+	\caption[Training with and without feature weighting]{Comparing training with and without feature weighting. While both approaches eventually converge to similar performance levels, the variant without feature weighting shows slightly worse performance in the initial training phase before reaching comparable final scores.}
 	\label{fig:feature_weighting_ablation}
 \end{figure}
 
