@@ -155,16 +155,16 @@ A solution to the lack of structure and interpretability can be object
 centricity, which focuses on learning or providing some kind of object
 representation that can be used for reasoning and decision-making. This can
 involve identifying and manipulating objects within the environment, leading to
-more interpretable and robust policies. Built on top of Atari OCAtari
+more interpretable and robust policies. Built on top of Atari, OCAtari
 \cite{delfosse2023ocatari} provides a standardized framework for extracting
-object representations from the standard Atari environment. This makes
+object representations from Atari environment. This makes
 different object-centric appraoches more comparable.
 
 Object centricity has the goal of interpretability and robustness whereas model-based approaches try to improve sample efficiency and planning capabilities
 among others. This thesis aims to investigate the potential benefits of
 integrating object-centric learning into model-based reinforcement learning
 frameworks to address these challenges by harvesting the strengths of both
-paradigms. This thesis is therefore guided by the following research questions:
+paradigms. Therefore it is guided by the following research questions:
 \begin{enumerate}
 	\item How do object-centric \worldmodel{}s compare to pixel-based \worldmodel{}s
 	      regarding prediction accuracy and sample efficiency?
@@ -176,9 +176,8 @@ paradigms. This thesis is therefore guided by the following research questions:
 	      changes in the environment?
 \end{enumerate}
 
-Within this thesis we propose to develop a \worldmodel{} that is running on top
-of object-centric states provided by the a framework called JAXAtari
-\cite{jaxatari}. This \worldmodel{} is trained to predict the next state of the
+Within this thesis we propose a \worldmodel{} that is running on top
+of object-centric states. This \worldmodel{} is trained to predict the next state of the
 environment given the current state and action. An actor-critic framework based
 on the DreamerV2 \cite{hafner2020dream} architecture is integrated with the
 \worldmodel{} to learn policies from imagined rollouts. The training pipeline
