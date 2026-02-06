@@ -417,6 +417,15 @@ Given the advantages of model-based RL and the effectiveness of the Dreamer
 architecture we now come to the question of how to best represent the state of
 the environment.
 
+While DreamerV2 is using pixel-based observations,
+our work differs in several ways. Instead of learning latent
+representations from 84×84 pixel observations through convolutional encoders
+and the RSSM architecture, we leverage explicit object-centric states extracted
+from JAXAtari. This eliminates the need for representation learning entirely
+and allows us to use a simpler feedforward architecture rather than recurrent
+models. Additionally, where DreamerV2 learns to predict rewards through the
+\worldmodel{}, we utilize geometric reward functions based on object positions.
+
 \section{Object-Centric Reinforcement Learning}
 \label{sec:object_centric_rl}
 
@@ -482,6 +491,14 @@ reasoning, where agents must understand not just individual objects but also
 the relationships and interactions between them. This capability is crucial for
 complex decision-making in multi-object environments where the optimal policy
 depends on understanding how different entities influence each other.
+
+The integration of these three components—model-based RL for sample efficiency,
+the Dreamer architecture for policy learning from imagination, and
+object-centric representations for structured understanding—forms the
+foundation of our approach. While each has been studied independently, their
+combination presents a promising but unexplored direction for achieving both
+sample efficiency and interpretability in reinforcement learning. The following
+chapter details our implementation that brings these components together.
 
 \chapter{Methodology}
 \label{chap:methodology}
