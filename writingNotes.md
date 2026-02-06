@@ -71,5 +71,8 @@ Vielleicht mehr Abgrenzen (bei related work nochmal)
 
 
 
+TODOS:
+Leser vielleicht nochmal etwas mehr an die Hand nehmen im Kapitel 3
+
 Final Questions:
 What do you think about the formatting of the Ai ACK Part
