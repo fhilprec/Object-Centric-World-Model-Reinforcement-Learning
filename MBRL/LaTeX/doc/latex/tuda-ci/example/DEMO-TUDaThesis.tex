@@ -527,10 +527,13 @@ computation. The following sections describe each component of this architecture
 
 \section{World Model Architecture} \label{sec:world_model_arch}
 
-Unlike DreamerV2 which learns on images we leverage the fact that we already
+Unlike DreamerV2 we use the fact that we already
 have object centric states. So instead of a 84 by 84 Pixel image as input we have
-a 12 object states. Which have the following features: Each object-centric
-state in Pong is represented as a \texttt{PongObservation} containing:
+a 12-dimensional feature vector per frame. Note that while the full
+\texttt{PongObservation} contains 14 features (including scores), we only use
+12 features for the \worldmodel{} which will be explained in Section
+\ref{sec:exp_setup}. Each object-centric state in Pong is represented as a
+\texttt{PongObservation} containing:
 \begin{itemize}
 	\item \textbf{Player Paddle:} Position (x, y), width, height
 	\item \textbf{Enemy Paddle:} Position (x, y), width, height
@@ -1287,11 +1290,14 @@ development cycle.
 Important open questions concern scalability to complex domains. Pong contains
 only 3 objects. Games like Breakout (dozens of bricks) or Seaquest (multiple
 fish types) require handling variable numbers of objects with diverse types and
-behaviors. This potentially requires graph neural networks or attention
-mechanisms. Complex interaction types (pickup, destruction, transformation) and
-partial observability (occlusion, object persistence) may require more
-sophisticated architectures than the feedforward MLP we use here. This
-highlights important directions for future research.
+behaviors. Our feedforward MLP architecture has a fixed input size and does not
+explicitly model object-object relationships, limiting its applicability to such
+scenarios. Graph neural networks or attention mechanisms might improve that by
+providing permutation invariance and handling variable numbers of objects.
+Complex interaction types (pickup, destruction, transformation) and 
+partial observability (occlusion, object persistence) may require more sophisticated architectures than the
+feedforward MLP we use here. This highlights important directions for future
+research.
 
 \chapter{Conclusion and Future Work}
 \label{chap:conclusion}
