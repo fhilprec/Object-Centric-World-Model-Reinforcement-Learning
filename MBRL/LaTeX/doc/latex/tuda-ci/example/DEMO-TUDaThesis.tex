@@ -492,6 +492,27 @@ the relationships and interactions between them. This capability is crucial for
 complex decision-making in multi-object environments where the optimal policy
 depends on understanding how different entities influence each other.
 
+\subsection{Object-Centric World Models for Reinforcement Learning}
+
+While object-centric representations and model-based RL have each been studied
+extensively, their combination remains an active area of research. Several
+recent works have demonstrated the benefits of object-centric world models.
+Zhang et al. \cite{zhang2022objects} show that object-centric world models
+improve reinforcement learning in visually complex environments, demonstrating
+better generalization and sample efficiency compared to pixel-based
+alternatives. Mosbach et al. \cite{mosbach2021learning} learn object-centric
+latent dynamics directly from pixels for model-based RL, combining
+representation learning with dynamics prediction.
+
+Most of these approaches learn object representations jointly with dynamics
+models from pixel observations \cite{kipf2021conditional,villar2023object}.
+While this end-to-end learning is more general, it introduces additional
+complexity and potential failure modes. This thesis takes another approach.
+By using ground-truth object-centric states from JAXAtari, we can isolate the 
+benefits of object-centric dynamics modeling from the challenge of object
+the benefits of object-centric dynamics modeling from the challenge of object
+discovery. This allows us to provide insights for both learned and extracted object-centric approaches.
+
 The integration of these three components—model-based RL for sample efficiency,
 the Dreamer architecture for policy learning from imagination, and
 object-centric representations for structured understanding—forms the
@@ -551,15 +572,16 @@ context. The input state contains 4 consecutive frames, which gives the model
 information about velocities and trajectories through the temporal differences
 between frames.
 
-Using a simple feedwordward network has several advantages. First, they are
+Using a simple feedforward network has several advantages. First, they are
 significantly faster to train and evaluate than recurrent models, since they
-have no sequential dependencies that require iterative computation. Also using
-them during training becomes easier since feeding them a single frame is sufficient
-which allows for better parallelization. Second, the structured nature
-of object-centric states (explicit positions) means the model does
-not need to learn temporal abstractions from scratch. The main disadvantage
-of feedforward models is that they lack temporal context which is solved to some degree
-by the frame stacking.
+have no sequential dependencies that require iterative computation.
+Also using them during training becomes easier
+since feeding them a single frame is sufficient which allows for better
+parallelization. Second, the structured nature of object-centric states
+(explicit positions) means the model does not need to learn temporal
+abstractions from scratch. The main disadvantage of
+feedforward models is that they lack temporal context which is solved to some
+degree by the frame stacking.
 
 Our implementation uses a 4-layer residual architecture that predicts
 frame-shifted states meaning the model only predicts a single frame meaning 12
@@ -928,6 +950,16 @@ object boundaries.
 Because of computational constraints, we report single-seed results for Dreamer
 and three seeds for the object-centric approach.
 
+\textbf{Experimental Scope:} While our primary evaluation focuses on the three
+experiments detailed in this chapter (prediction accuracy, policy learning, and
+robustness), the development process involved additional exploratory
+experiments. These included investigations into different network architectures
+(varying depth and width), alternative frame stack sizes (2, 4, 8 frames),
+reward prediction approaches, and various hyperparameter configurations for the
+actor-critic training \cite{yoon2023investigation}. The configurations
+presented here represent the most stable and well-performing setups identified
+through this exploratory process.
+
 \section{World Model Prediction Accuracy} \label{sec:world_model_perf}
 
 We compare prediction accuracy of object-centric and pixel-based \worldmodel{}s
@@ -1292,8 +1324,9 @@ only 3 objects. Games like Breakout (dozens of bricks) or Seaquest (multiple
 fish types) require handling variable numbers of objects with diverse types and
 behaviors. Our feedforward MLP architecture has a fixed input size and does not
 explicitly model object-object relationships, limiting its applicability to such
-scenarios. Graph neural networks or attention mechanisms might improve that by
-providing permutation invariance and handling variable numbers of objects.
+scenarios. Graph neural networks or attention mechanisms
+\cite{carion2020end,locatello2020object} might improve that by providing
+permutation invariance and handling variable numbers of objects.
 Complex interaction types (pickup, destruction, transformation) and 
 partial observability (occlusion, object persistence) may require more sophisticated architectures than the
 feedforward MLP we use here. This highlights important directions for future
