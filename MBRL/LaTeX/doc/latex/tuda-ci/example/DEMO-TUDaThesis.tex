@@ -156,7 +156,7 @@ centricity, which focuses on learning or providing some kind of object
 representation that can be used for reasoning and decision-making. This can
 involve identifying and manipulating objects within the environment, leading to
 more interpretable and robust policies. Built on top of Atari, OCAtari
-\cite{delfosse2023ocatari} provides a standardized framework for extracting
+\cite{DBLP:conf/rlc/DelfosseBGSK24} provides a standardized framework for extracting
 object representations from Atari environment. This makes
 different object-centric appraoches more comparable.
 
@@ -434,7 +434,7 @@ not make predictions on the raw pixel input but rather try to first create an
 abstract representation of the environment which has some semantic
 understanding of the objects within it. There are methods that use the pixel
 input to create objects from it \cite{locatello2020object} but also approaches
-where the objects states are extracted from RAM \cite{delfosse2023ocatari} or
+where the objects states are extracted from RAM \cite{DBLP:conf/rlc/DelfosseBGSK24} or
 given directly by the environment itself like in JAXAtari.
 
 This object extraction mimics human perception, which naturally segments scenes
@@ -455,7 +455,7 @@ understands the concept of a "ball" an an abstract object can use this knowledge
 pixel data, agents can learn policies with fewer rollouts. This is possible because the object space is already a kind of latent space. \cite{locatello2020object}.
 
 A significant development in this field is the introduction of OCAtari
-(object-centric Atari) by Delfosse et al. \cite{delfosse2023ocatari}. OCAtari
+(object-centric Atari) by Delfosse et al. \cite{DBLP:conf/rlc/DelfosseBGSK24}. OCAtari
 extends the widely-used Arcade Learning Environment (ALE) by providing
 resource-efficient extraction of object-centric states for Atari 2600 games.
 This framework fixes a gap, where despite growing interest in object-centric
@@ -473,7 +473,7 @@ The importance of object-centric approaches in Atari environments is especially
 present in light of pixel-based methods in these domains. Delfosse et al.
 demonstrated that deep RL agents without interpretable object-centric
 representations can learn misaligned policies even in simple games like Pong
-\cite{delfosse2023ocatari}. This misalignment problem strengthens the argument
+\cite{DBLP:conf/rlc/DelfosseBGSK24}. This misalignment problem strengthens the argument
 for using object-centric understanding rather than attempting to retrofit
 interpretability onto pixel-based systems.
 
