@@ -477,7 +477,7 @@ representations can learn misaligned policies even in simple games like Pong
 for using object-centric understanding rather than attempting to retrofit
 interpretability onto pixel-based systems.
 
-Building upon OCAtari, JAXAtari \cite{machado2023revisiting} provides a
+Building upon OCAtari, JAXAtari \cite{jaxatari} provides a
 JAX-based implementation that offers additional performance benefits through
 just-in-time compilation and vectorized environments. JAXAtari maintains
 compatibility with the object-centric state extraction capabilities of OCAtari
@@ -916,7 +916,7 @@ prediction accuracy, sample efficiency, and robustness to visual changes.
 \label{sec:exp_setup}
 
 All experiments are done in the Pong environment. For the object-centric
-approach, we use JAXAtari to extract states. This gives us direct access to
+approach, we use JAXAtari \cite{jaxatari} to extract states. This gives us direct access to
 object positions and dimensions. This includes player paddle position (x, y),
 dimensions (width, height), enemy paddle position and dimensions, and ball
 position and dimensions. We use frame stacking with 4 frames, so we get a
