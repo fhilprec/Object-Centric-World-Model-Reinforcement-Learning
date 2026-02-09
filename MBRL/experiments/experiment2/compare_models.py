@@ -51,10 +51,33 @@ def main():
     dreamer_mse = dreamer_results['mse_per_horizon_pixels']
     jax_mse = jax_results['mse_per_horizon_pixels']
 
+    # Calculate standard deviation for JAX model from raw frames
+    jax_std_per_horizon = None
+    if 'all_real_frames' in jax_results and 'all_predicted_frames' in jax_results:
+        real_frames = jax_results['all_real_frames']  # Shape: (num_sequences, seq_len, H, W)
+        pred_frames = jax_results['all_predicted_frames']
+
+        # Calculate MSE per sequence per horizon
+        # We need to skip the first frame since predictions start from step 1
+        mse_per_seq_per_horizon = []
+        for seq_idx in range(real_frames.shape[0]):
+            mse_per_horizon_this_seq = []
+            for horizon_idx in range(1, real_frames.shape[1]):
+                real_frame = real_frames[seq_idx, horizon_idx]
+                pred_frame = pred_frames[seq_idx, horizon_idx]
+                mse = np.mean((real_frame - pred_frame) ** 2)
+                mse_per_horizon_this_seq.append(mse)
+            mse_per_seq_per_horizon.append(mse_per_horizon_this_seq)
+
+        mse_per_seq_per_horizon = np.array(mse_per_seq_per_horizon)  # Shape: (num_sequences, horizons)
+        jax_std_per_horizon = np.std(mse_per_seq_per_horizon, axis=0)
+
     # Ensure same length
     min_length = min(len(dreamer_mse), len(jax_mse))
     dreamer_mse = dreamer_mse[:min_length]
     jax_mse = jax_mse[:min_length]
+    if jax_std_per_horizon is not None:
+        jax_std_per_horizon = jax_std_per_horizon[:min_length]
 
     horizons = np.arange(1, min_length + 1)
 
@@ -92,10 +115,18 @@ def main():
 
     ax.plot(horizons, dreamer_mse, 'o-', label='DreamerV2', linewidth=2, markersize=6, color='blue')
     ax.plot(horizons, jax_mse, 's-', label='JAX World Model', linewidth=2, markersize=6, color='orange')
-    ax.set_xlabel('Prediction Horizon (steps)', fontsize=12)
-    ax.set_ylabel('MSE (84x74 cropped grayscale pixels)', fontsize=12)
-    ax.set_title('World Model Prediction Error Comparison\n(Lower is Better)', fontsize=14, fontweight='bold')
-    ax.legend(fontsize=11)
+
+    # Add standard deviation shading for JAX model if available
+    if jax_std_per_horizon is not None:
+        ax.fill_between(horizons,
+                        jax_mse - jax_std_per_horizon,
+                        jax_mse + jax_std_per_horizon,
+                        color='orange', alpha=0.2, label='JAX ±1 std')
+
+    ax.set_xlabel('Prediction Horizon (steps)', fontsize=14)
+    ax.set_ylabel('MSE (84x74 cropped grayscale pixels)', fontsize=14)
+    ax.set_title('World Model Prediction Error Comparison\n(Lower is Better)', fontsize=16, fontweight='bold')
+    ax.legend(fontsize=13)
     ax.grid(True, alpha=0.3)
     ax.set_xlim(0, min_length + 1)
 
