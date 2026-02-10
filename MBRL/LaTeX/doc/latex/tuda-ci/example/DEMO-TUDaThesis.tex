@@ -179,7 +179,7 @@ paradigms. Therefore it is guided by the following research questions:
 Within this thesis we propose a \worldmodel{} that is running on top
 of object-centric states. This \worldmodel{} is trained to predict the next state of the
 environment given the current state and action. An actor-critic framework based
-on the DreamerV2 \cite{hafner2020dream} architecture is integrated with the
+on the DreamerV2 \cite{DBLP:conf/iclr/HafnerLB020} architecture is integrated with the
 \worldmodel{} to learn policies from imagined rollouts. The training pipeline
 involves alternating between updating the \worldmodel{} and optimizing the
 policy based on simulated experiences. The performance of the proposed approach
@@ -273,10 +273,10 @@ by interacting with the environment and receiving feedback in the form of
 rewards. This trial-and-error process allows the agent to improve its policy
 over time. By omitting a \worldmodel{} the complexity of the overall system is
 reduced but the the agent is usually quite sample inefficient
-\cite{duan2016benchmarking,kaiser2019model}. Also, the lack of a model can make
+\cite{DBLP:conf/icml/DuanCHSA16, DBLP:conf/iclr/KaiserBMOCCEFKL20}. Also, the lack of a model can make
 it difficult for the agent to plan ahead or consider the long-term consequences
 of its actions. On top of that \worldmodel{}s can improve generalization to new
-tasks and make the agent more robust \cite{ha2018world,hafner2020dream}.
+tasks and make the agent more robust \cite{DBLP:conf/nips/HaS18,DBLP:conf/iclr/HafnerLB020}.
 Moreover they provide limited interpretability with regards to their learned
 policy.
 
@@ -309,11 +309,11 @@ initial sampling which is usually done by a random policy might not see diverse
 enough states. This is for most Atari Games not an issue but for more complex
 environment it can be important to retrain the \worldmodel{} with new
 experience that is sampled by the newly trained agent in the real environment
-\cite{janner2019trust,sutton1991dyna}. Moreover there are approaches that use
+\cite{DBLP:conf/nips/JannerFZL19,sutton1991dyna}. Moreover there are approaches that use
 explicit planning strategies that hugely benefit interpretability. Using the
 \worldmodel{} the agent can make guesses what might happen in the future and
 explicitly reason why it decides for a certain action
-\cite{schrittwieser2020mastering,greydanus2018visualizing}.
+\cite{schrittwieser2020mastering,DBLP:conf/icml/GreydanusKDF18}.
 
 But training a well designed and stable model can create several challenges for
 example the \worldmodel{} can introduce a bias into the agent which does not
@@ -324,19 +324,19 @@ during inference \cite{talvitie2017self,lambert2020learning}.
 \section{Dreamer Architecture}
 \label{sec:dreamer_architecture}
 
-The Dreamer architecture \cite{hafner2020dream} is a family of model-based RL algorithms (DreamerV1,
+The Dreamer architecture \cite{DBLP:conf/iclr/HafnerLB020} is a family of model-based RL algorithms (DreamerV1,
 V2, V3) that use a \worldmodel{} together with actor-critic methods \cite{barto1983neuronlike}. The main
 idea is to learn a compact latent space where the agent can imagine rollouts
 and train its policy without always interacting with the real environment.
 Dreamer builds on ideas from PlaNet
-\cite{hafner2019learninglatentdynamicsplanning} and models from
-\cite{ha2018world}, which first used latent dynamics, but Dreamer adds
+\cite{DBLP:conf/icml/HafnerLFVHLD19} and models from
+\cite{DBLP:conf/nips/HaS18}, which first used latent dynamics, but Dreamer adds
 actor-critic learning and works better for Atari games.
 
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=0.9\textwidth]{images/DreamerFlow.png}
-	\caption[DreamerV2 training pipeline overview]{Overview of the DreamerV2 training pipeline. The \worldmodel{} learns to predict future states and rewards, enabling the actor-critic framework to optimize policies using imagined rollouts. Taken from Hafner et al.~\cite{hafner2021mastering}, Fig.~1.}
+	\caption[DreamerV2 training pipeline overview]{Overview of the DreamerV2 training pipeline. The \worldmodel{} learns to predict future states and rewards, enabling the actor-critic framework to optimize policies using imagined rollouts. Taken from Hafner et al.~\cite{DBLP:conf/iclr/HafnerL0B21}, Fig.~1.}
 	\label{fig:dreamer_flow}
 \end{figure}
 
@@ -433,7 +433,7 @@ Object-centric reinforcement learning (OCRL) is a collection of methods that do
 not make predictions on the raw pixel input but rather try to first create an
 abstract representation of the environment which has some semantic
 understanding of the objects within it. There are methods that use the pixel
-input to create objects from it \cite{locatello2020object} but also approaches
+input to create objects from it \cite{DBLP:conf/nips/LocatelloWUMHUD20} but also approaches
 where the objects states are extracted from RAM \cite{DBLP:conf/rlc/DelfosseBGSK24} or
 given directly by the environment itself like in JAXAtari.
 
@@ -447,12 +447,12 @@ This compositionality allows agents to reason about individual objects and their
 to make connections between velocity and the position of a ball to a paddle.
 
 \textbf{Improved Generalization:} By focusing on objects rather than pixel patterns, agents can generalize better across visually different but similar scenarios. For example agents that
-understands the concept of a "ball" an an abstract object can use this knowledge in environments where the ball has a different shape or appearance in general \cite{zambaldi2018deep}.
+understands the concept of a "ball" an an abstract object can use this knowledge in environments where the ball has a different shape or appearance in general \cite{DBLP:conf/iclr/ZambaldiRSBLBTR19}.
 
 \textbf{Enhanced Interpretability:} Object-centric representations provide naturally a better interpretability than pixel based representations since the agent can reason better that it perceives things as objects rather than "random" pixels.
 
 \textbf{Sample Efficiency:} The structured nature of object-centric representations often leads to more sample-efficient learning. By working with compact, meaningful features rather than high-dimensional
-pixel data, agents can learn policies with fewer rollouts. This is possible because the object space is already a kind of latent space. \cite{locatello2020object}.
+pixel data, agents can learn policies with fewer rollouts. This is possible because the object space is already a kind of latent space. \cite{DBLP:conf/nips/LocatelloWUMHUD20}.
 
 A significant development in this field is the introduction of OCAtari
 (object-centric Atari) by Delfosse et al. \cite{DBLP:conf/rlc/DelfosseBGSK24}. OCAtari
@@ -497,15 +497,15 @@ depends on understanding how different entities influence each other.
 While object-centric representations and model-based RL have each been studied
 extensively, their combination remains an active area of research. Several
 recent works have demonstrated the benefits of object-centric world models.
-Zhang et al. \cite{zhang2022objects} show that object-centric world models
+Zhang et al. \cite{DBLP:journals/corr/abs-2501-16443} show that object-centric world models
 improve reinforcement learning in visually complex environments, demonstrating
 better generalization and sample efficiency compared to pixel-based
-alternatives. Mosbach et al. \cite{mosbach2021learning} learn object-centric
+alternatives. Mosbach et al. \cite{DBLP:conf/icml/MosbachEVB25} learn object-centric
 latent dynamics directly from pixels for model-based RL, combining
 representation learning with dynamics prediction.
 
 Most of these approaches learn object representations jointly with dynamics
-models from pixel observations \cite{kipf2021conditional,villar2023object}.
+models from pixel observations \cite{DBLP:conf/iclr/KipfEMSSHJDG22,villar2023object}.
 While this end-to-end learning is more general, it introduces additional
 complexity and potential failure modes. This thesis takes another approach.
 By using ground-truth object-centric states from JAXAtari, we can isolate the
@@ -526,7 +526,7 @@ chapter details our implementation that brings these components together.
 In this chapter we explore the actual implementation of the \worldmodel{}
 along with the actor critic which learns in the imagined rollouts generated by
 the \worldmodel{}. The implementation is based on the DreamerV2 architecture
-\cite{hafner2020dream} described in Section \ref{sec:dreamer_architecture}.
+\cite{DBLP:conf/iclr/HafnerLB020} described in Section \ref{sec:dreamer_architecture}.
 Moreover we chose the game Pong from the Atari benchmark suite to exemplify our
 approach since it is a well understood environment and not too complex to
 train on. The complete implementation including all training scripts and
@@ -692,7 +692,7 @@ the sample efficiency benefits of model-based RL.
 \end{align}
 
 The distributional critic provides the uncertainty estimates and has been shown
-to improve the learning stability in actor-critic methods \cite{yue2020implicit}.
+to improve the learning stability in actor-critic methods \cite{DBLP:conf/nips/YueWZ20}.
 During training, we minimize the negative log-likelihood of the target returns
 under this distribution.
 
@@ -955,7 +955,7 @@ robustness), the development process involved additional exploratory
 experiments. These included investigations into different network architectures
 (varying depth and width), alternative frame stack sizes (2, 4, 8 frames),
 reward prediction approaches, and various hyperparameter configurations for the
-actor-critic training \cite{yoon2023investigation}. The configurations
+actor-critic training \cite{DBLP:conf/icml/YoonWBA23}. The configurations
 presented here represent the most stable and well-performing setups identified
 through this exploratory process.
 
@@ -1324,7 +1324,7 @@ fish types) require handling variable numbers of objects with diverse types and
 behaviors. Our feedforward MLP architecture has a fixed input size and does not
 explicitly model object-object relationships, limiting its applicability to such
 scenarios. Graph neural networks or attention mechanisms
-\cite{carion2020end,locatello2020object} might improve that by providing
+\cite{carion2020end,DBLP:conf/nips/LocatelloWUMHUD20} might improve that by providing
 permutation invariance and handling variable numbers of objects.
 Complex interaction types (pickup, destruction, transformation) and 
 partial observability (occlusion, object persistence) may require more sophisticated architectures than the
@@ -1384,7 +1384,7 @@ object extraction sidesteps the challenge of learning object representations
 from pixels. Future work should expand to complex Atari games (Breakout,
 Seaquest, Space Invaders) that require graph neural networks or attention
 mechanisms for variable numbers of objects. Investigating unsupervised object
-discovery methods (for example slot attention \cite{locatello2020object}), uncertainty-aware prediction,
+discovery methods (for example slot attention \cite{DBLP:conf/nips/LocatelloWUMHUD20}), uncertainty-aware prediction,
 hierarchical \worldmodel{}s, and learned reward predictors would address key
 limitations. Testing robustness to dynamic perturbations (physics parameters),
 novel object configurations, and transfer learning across related environments
