@@ -11,6 +11,7 @@
 	marginpar=false,
 	parskip=half-,
 	fontsize=11pt,
+	pdfa=true,
 ]{tudapub}
 
 
@@ -69,7 +70,8 @@
 \usepackage{graphicx}
 \usepackage{subcaption}
 \usepackage{float}
-\usepackage{hyperref}
+\usepackage{pdfpages}
+% hyperref is loaded automatically by pdfx when pdfa=true is set in document class
 
 %%%%%%%%%%%%%%%%%%%
 % Custom macros
@@ -97,7 +99,7 @@
 
 \maketitle
 
-\affidavit
+\includepdf[pages=-]{signedPage2.pdf}
 
 \tableofcontents
 \listoffigures
