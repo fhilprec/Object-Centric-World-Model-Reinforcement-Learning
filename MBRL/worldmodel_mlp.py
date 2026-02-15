@@ -61,6 +61,7 @@ def compare_real_vs_model(
     model_path=None,
     show_only_one_step=False,
     reward_predictor_params=None,
+    model_scale_factor=MODEL_SCALE_FACTOR,
     calc_score_based_reward: bool = True,
     print_error: bool = True,
     rollout_length: int = 0,
