@@ -89,6 +89,54 @@ def compare_real_vs_model(
         action,
         previous_model_obs=None,
     ):
+        # Properly unflatten observations to get the current frame
+        real_obs_structured = unflattener(real_obs)
+        pred_obs_structured = unflattener(pred_obs)
+
+        # Take the last frame from the stack
+        real_obs_current = jax.tree_util.tree_map(lambda x: x[-1] if hasattr(x, '__len__') and len(x) > 1 else x, real_obs_structured)
+        pred_obs_current = jax.tree_util.tree_map(lambda x: x[-1] if hasattr(x, '__len__') and len(x) > 1 else x, pred_obs_structured)
+
+        # Flatten back to get single frame observation
+        unstacked_real_obs, _ = flatten_obs(real_obs_current, single_state=True)
+        unstacked_pred_obs, _ = flatten_obs(pred_obs_current, single_state=True)
+
+        # Print nice comparison for presentation
+        print("\n" + "="*80)
+        print(f"STEP {step} - FISH (DIVERS) AND SHARK POSITION COMPARISON")
+        print("="*80)
+
+        # Extract and display DIVERS (Fish) - indices 125-144 (4 divers × 5 elements)
+        print("\n🐟 DIVERS (FISH) POSITIONS:")
+        print("-"*80)
+        print(f"{'Diver':<8} | {'Real X':<10} {'Real Y':<10} | {'Pred X':<10} {'Pred Y':<10}")
+        print("-"*80)
+        for i in range(4):
+            base_idx = 125 + (i * 5)
+            real_x = unstacked_real_obs[base_idx]
+            real_y = unstacked_real_obs[base_idx + 1]
+
+            pred_x = unstacked_pred_obs[base_idx]
+            pred_y = unstacked_pred_obs[base_idx + 1]
+
+            print(f"Diver {i}  | {real_x:<10.1f} {real_y:<10.1f} | {pred_x:<10.1f} {pred_y:<10.1f}")
+
+        # Extract and display SHARKS - indices 5-64 (12 sharks × 5 elements)
+        print("\n🦈 SHARK POSITIONS:")
+        print("-"*80)
+        print(f"{'Shark':<8} | {'Real X':<10} {'Real Y':<10} | {'Pred X':<10} {'Pred Y':<10}")
+        print("-"*80)
+        for i in range(12):
+            base_idx = 5 + (i * 5)
+            real_x = unstacked_real_obs[base_idx]
+            real_y = unstacked_real_obs[base_idx + 1]
+
+            pred_x = unstacked_pred_obs[base_idx]
+            pred_y = unstacked_pred_obs[base_idx + 1]
+
+            print(f"Shark {i:<2} | {real_x:<10.1f} {real_y:<10.1f} | {pred_x:<10.1f} {pred_y:<10.1f}")
+
+        print("="*80 + "\n")
         # pred_obs is now squeezed, so it's 1D
         error = jnp.mean((real_obs - pred_obs) ** 2)
         if print_error:
@@ -252,6 +300,7 @@ def compare_real_vs_model(
         # Squeeze batch dimension to maintain shape consistency (feature_dim,)
         model_obs = unnormalized_model_prediction.squeeze()
 
+        debug_obs(step_count, next_real_obs, model_obs, action)
         if print_error:
             if steps_into_future == 0 or reset:
                 debug_obs(step_count, next_real_obs, model_obs, action)
@@ -431,6 +480,7 @@ def collect_experience(
             def continue_step(_):
                 rng_new, _ = jax.random.split(rng)
                 action = random_policy(obs, rng_new)
+                action = jnp.array(2, dtype=jnp.int32)
 
                 next_obs, next_state, reward, next_done, _ = env.step(state, action)
                 transition = (obs, action, jnp.float32(reward), next_done, ~done)
